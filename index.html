@@ -30,7 +30,7 @@
       background:
         radial-gradient(1200px 700px at 80% 10%, #1f2750 0%, #0b1020 55%),
         radial-gradient(900px 500px at 10% 90%, #1f2b33 0%, #0b1020 65%);
-      overflow-x:hidden; /* Прячем горизонтальную прокрутку у всего тела */
+      overflow-x:hidden;
       overflow-y:auto;
     }
     .bg{
@@ -47,7 +47,6 @@
       100%{transform:translateY(0)}
     }
 
-    /* Основная обертка */
     .wrap{
       position:relative;
       min-height:100vh;
@@ -57,51 +56,61 @@
       padding:20px;
     }
 
-    /* --- МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕНО) --- */
+    /* --- МОБИЛЬНАЯ АДАПТАЦИЯ --- */
     @media (max-width: 980px){
       .wrap {
-        display: flex;            /* Flex лучше контролирует ширину */
-        flex-direction: column;   /* Блоки друг под другом */
+        display: flex;
+        flex-direction: column;
         width: 100%;
-        max-width: 100vw;         /* Жестко запрещаем быть шире экрана */
+        max-width: 100vw;
         padding: 10px;
-        gap: 15px;
-        overflow-x: hidden;       /* Обрезаем всё, что торчит */
+        gap: 12px;
+        overflow-x: hidden;
       }
 
       header, .panel {
         width: 100%;
-        min-width: 0;             /* Разрешаем блокам сжиматься, если экран узкий */
+        min-width: 0;
       }
 
       header {
-        padding: 10px 12px;
+        padding: 8px 12px; /* Чуть компактнее шапка */
       }
       
       .panel {
         padding: 12px;
+        gap: 10px; /* Меньше отступы между секциями настроек */
       }
 
-      /* На телефоне делаем поле квадратным (1:1) */
+      /* Прячем секцию с советами на телефоне для экономии места */
+      .hide-on-mobile {
+        display: none !important;
+      }
+
+      /* Сжимаем блок опций */
+      .compact-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* В две колонки */
+        align-items: center;
+        gap: 8px;
+      }
+
       .boardSizer::before {
-        padding-bottom: 100%;
+        padding-bottom: 100%; /* Квадратное поле */
       }
 
-      /* Уменьшаем превью, чтобы не мешало */
+      /* УВЕЛИЧИЛ ПРЕВЬЮ (ОБРАЗЕЦ) */
       .previewBox {
-        width: 35%;
+        width: 55%; /* Было 35%, стало больше */
         max-width: none;
-        bottom: 8px; 
-        right: 8px;
+        bottom: 10px; 
+        right: 10px;
+        box-shadow: 0 5px 20px rgba(0,0,0,0.8);
       }
-
-      /* Уменьшаем шрифты на совсем маленьких экранах */
-      @media (max-width: 480px){
-        header h1{font-size:18px;}
-        header .sub{font-size:12px;}
-        .section h2{font-size:13px;}
-        .btn{padding:10px; font-size:13px;}
-      }
+      
+      /* Делаем ползунок и кнопки компактнее */
+      .section h2 { margin-bottom: 4px; }
+      .stats { margin-top: 0 !important; }
     }
 
     header{
@@ -135,14 +144,13 @@
       backdrop-filter: blur(16px);
       min-height:0;
     }
-    .section{display:flex; flex-direction:column; gap:10px}
+    .section{display:flex; flex-direction:column; gap:8px}
     .section h2{
       font-size:14px; font-weight:600; margin:0;
       color:#cfe6ff; text-transform:uppercase; letter-spacing:.12em;
     }
     .section .mut{color:var(--muted); font-size:13px}
 
-    /* ГАЛЕРЕЯ */
     .gallery{
       display:flex;
       flex-wrap:nowrap;
@@ -165,31 +173,25 @@
       cursor:pointer;
       border:1px solid rgba(255,255,255,.08);
       background:#0e1428;
-      flex:0 0 auto; /* Не сжимаем превьюшки */
-      width: 100px;  /* Фиксированная ширина для удобства */
+      flex:0 0 auto;
+      width: 90px; /* Чуть меньше миниатюры для компактности */
       aspect-ratio:16/9;
       scroll-snap-align:start;
     }
-    .thumb img{
-      display:block;
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      transform:translateZ(0);
-    }
+    .thumb img{width:100%; height:100%; object-fit:cover;}
     .thumb.active{outline:2px solid var(--acc)}
 
-    .controls{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+    /* Кнопки управления */
+    .controls{display:grid; grid-template-columns: 1fr 1fr; gap:8px}
     .btn{
       user-select:none; -webkit-tap-highlight-color:transparent;
       background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border:1px solid rgba(255,255,255,.10);
-      color:white; padding:12px 14px; border-radius:12px;
+      color:white; padding:10px 12px; border-radius:12px;
       cursor:pointer; text-align:center; box-shadow:var(--shadow);
-      transition: transform .08s ease, box-shadow .2s ease, background .3s ease;
-      font-weight:600; font-size:14px; letter-spacing:.2px;
+      transition: transform .08s ease;
+      font-weight:600; font-size:13px;
     }
-    .btn:hover{transform: translateY(-1px)}
     .btn:active{transform: translateY(0)}
     .btn.primary{
       background:linear-gradient(180deg, rgba(140,255,220,.4), rgba(140,255,220,.08));
@@ -199,51 +201,46 @@
     .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
     .row .label{font-size:14px; color:#cfe6ff}
     .row .value{font-weight:600}
-    .range{accent-color:#7df2ff; width:100%}
+    .range{accent-color:#7df2ff; width:100%; margin: 4px 0;}
 
-    .toggles{display:flex; gap:10px; flex-wrap:wrap}
+    .toggles{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
     .toggle{
       display:flex; align-items:center; gap:8px;
       background:rgba(255,255,255,.06);
-      padding:8px 12px; border-radius:999px;
+      padding:6px 12px; border-radius:999px;
       border:1px solid rgba(255,255,255,.10);
       font-size:13px; cursor:pointer; user-select:none;
     }
     .toggle input{accent-color:#7df2ff}
 
+    /* Статистика (Время и ходы) */
     .stats{
       display:grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr 1fr; /* Две колонки, так как "лучшее" убрали */
       gap:8px; margin-top:6px;
     }
     .stat{
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.10);
       border-radius:12px;
-      padding:10px 12px;
+      padding:8px 10px;
       text-align:center;
+      font-size: 12px; color: var(--muted);
     }
-    .stat b{display:block; font-size:18px; margin-top:2px}
+    .stat b{display:block; font-size:16px; margin-top:2px; color: #fff;}
 
     .board-wrap{
       position:relative;
       background:var(--glass);
       border-radius: var(--radius);
       box-shadow:var(--shadow);
-      overflow:hidden; /* Важно: прячем все что вылезает за границы поля */
+      overflow:hidden;
       min-height:0;
     }
 
-    .boardSizer{
-      position:relative;
-      width:100%;
-    }
-    .boardSizer::before{
-      content:'';
-      display:block;
-      padding-bottom:62%; /* десктоп формат */
-    }
-    /* Коррекция высоты для ноутбуков */
+    .boardSizer{position:relative; width:100%;}
+    .boardSizer::before{content:''; display:block; padding-bottom:62%;}
+    
     @media (max-height: 760px) and (min-width: 981px){
       .boardSizer::before{padding-bottom:56%;}
     }
@@ -262,32 +259,26 @@
       background-size:cover;
       filter: saturate(120%) contrast(105%) brightness(105%);
     }
-    .gridLines{
-      position:absolute; inset:0; pointer-events:none;
-      background-size: var(--cols) 100%, 100% var(--rows);
-      background-image:
-        linear-gradient(to right, rgba(255,255,255,.12) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,.12) 1px, transparent 1px);
-      opacity:0; transition: opacity .25s ease;
-    }
+    /* Сетка убрана визуально (opacity 0 всегда), но класс оставим, чтобы не ломать логику */
+    .gridLines{ display:none; }
 
     .tile{
       position:relative; user-select:none; -webkit-user-drag:none;
       background-size: var(--bgW) var(--bgH); background-repeat:no-repeat;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
-      cursor:pointer; border-radius:8px;
+      cursor:pointer; border-radius:6px;
       transition: transform .08s ease, box-shadow .15s ease;
       background-color:#111828;
     }
     .tile:active{transform: scale(.98)}
     .tile.right{
-      box-shadow:0 0 0 4px rgba(161,255,207,.95),
-                 inset 0 0 0 1px rgba(255,255,255,.08);
+      box-shadow:0 0 0 3px rgba(161,255,207,.95), inset 0 0 0 1px rgba(255,255,255,.08);
+      z-index: 1;
     }
     .tile.selected{
-      outline:4px solid var(--acc); outline-offset:-2px;
-      box-shadow:0 0 0 4px rgba(108,224,255,.95),
-                 inset 0 0 0 1px rgba(255,255,255,.08);
+      outline:3px solid var(--acc); outline-offset:-2px;
+      box-shadow:0 0 0 3px rgba(108,224,255,.95), inset 0 0 0 1px rgba(255,255,255,.08);
+      z-index: 2;
     }
 
     .paused .board{filter: grayscale(1) brightness(.8)}
@@ -318,7 +309,7 @@
       pointer-events:none;
       transform:translateY(6px);
       transition:opacity .25s ease, transform .25s ease;
-      z-index:2;
+      z-index:5;
     }
     .previewBox.visible{
       opacity:1;
@@ -336,7 +327,7 @@
       box-shadow: var(--shadow);
       padding:16px;
       display:none;
-      z-index:4;
+      z-index:10;
       backdrop-filter: blur(18px);
     }
     .win-modal.visible{display:block; animation:pop .25s ease}
@@ -351,7 +342,7 @@
     #shareBtn{display:none;}
 
     canvas.confetti{position:absolute; inset:0; pointer-events:none; z-index:3}
-    .credit{font-size:12px; color:var(--muted)}
+    .credit{font-size:12px; color:var(--muted); margin-top: 4px;}
     .credit a{color:#b8ffde}
   </style>
 </head>
@@ -362,52 +353,47 @@
     <header>
       <div class="logo" aria-hidden="true"></div>
       <div>
-        <h1>Пазл «Панорама» <span style="opacity:.8;font-weight:300">· Попутчик</span></h1>
-        <div class="sub">Собери панораму. Включай подсказку, меняй сложность, делись лучшим временем.</div>
+        <h1>Пазл «Панорама»</h1>
+        <div class="sub">Собери панораму.</div>
       </div>
     </header>
 
     <aside class="panel" id="leftPanel">
       <div class="section">
-        <h2>Выбор панорамы</h2>
         <div class="gallery" id="gallery"></div>
         <div class="credit" id="credit"></div>
       </div>
 
       <div class="section">
-        <h2>Сложность</h2>
-        <div class="row">
-          <div class="label">Размер сетки</div>
+        <div class="row" style="margin-bottom:-4px">
+          <div class="label">Сложность</div>
           <div class="value"><span id="diffLabel">4×4</span></div>
         </div>
         <input type="range" min="3" max="8" value="4" class="range" id="diffRange" />
-        <div class="mut">Больше — сложнее. От 3×3 до 8×8.</div>
       </div>
 
       <div class="section">
-        <h2>Опции</h2>
         <div class="toggles">
           <label class="toggle"><input type="checkbox" id="hintToggle" /> Подсказка</label>
-          <label class="toggle"><input type="checkbox" id="gridToggle" /> Сетка</label>
           <label class="toggle"><input type="checkbox" id="previewToggle" /> Образец</label>
         </div>
-        <div class="controls">
-          <div class="btn primary" id="shuffleBtn">Перемешать</div>
-          <div class="btn" id="pauseBtn">Пауза</div>
-        </div>
-        <div class="stats">
-          <div class="stat">Время<b id="time">00:00</b></div>
-          <div class="stat">Ходы<b id="moves">0</b></div>
-          <div class="stat">Лучшее<b id="best">—</b></div>
+        
+        <div class="compact-row">
+          <div class="controls">
+            <div class="btn primary" id="shuffleBtn">Микс</div>
+            <div class="btn" id="pauseBtn">Пауза</div>
+          </div>
+          <div class="stats">
+            <div class="stat">Время<b id="time">00:00</b></div>
+            <div class="stat">Ходы<b id="moves">0</b></div>
+          </div>
         </div>
       </div>
 
-      <div class="section">
+      <div class="section hide-on-mobile">
         <h2>Совет</h2>
         <div class="mut">
-          Кликни по двум фрагментам, чтобы их поменять.
-          Толстая голубая окантовка — выбранный фрагмент.
-          Ярко‑зелёная — фрагмент на своём месте.
+          Кликни по двум фрагментам, чтобы поменять их местами.
         </div>
       </div>
     </aside>
@@ -416,7 +402,6 @@
       <div class="boardSizer">
         <div class="board" id="board"></div>
         <div class="hintOverlay" id="hint"></div>
-        <div class="gridLines" id="grid"></div>
         <canvas class="confetti" id="confetti"></canvas>
         <div class="overlayPause">Пауза</div>
         <div class="previewBox" id="previewBox"></div>
@@ -436,19 +421,15 @@
   <script>
   ;(() => {
    
-    /*** Панорамы из локальной папки assets/img читаем из JSON ***/
+    /*** Панорамы читаем из JSON ***/
     let IMAGES = [];
 
     async function loadImagesAndInit() {
       try {
         const response = await fetch('assets/img/images.json');
-        if (!response.ok) {
-          throw new Error('HTTP ' + response.status);
-        }
-
+        if (!response.ok) throw new Error('HTTP ' + response.status);
         const data = await response.json();
 
-        // Преобразуем записи из JSON в нужный формат
         IMAGES = data.map((img, index) => ({
           id: img.id || `local-${index + 1}`,
           title: img.title || `Панорама ${index + 1}`,
@@ -457,10 +438,9 @@
         }));
 
         init();
-
       } catch (err) {
-        console.error('Не удалось загрузить images.json', err);
-        alert('Не удалось загрузить список картинок. Попробуй обновить страницу.');
+        console.error('Ошибка загрузки JSON', err);
+        alert('Не удалось загрузить картинки.');
       }
     }
 
@@ -469,16 +449,14 @@
     const creditEl  = document.getElementById('credit');
     const boardEl   = document.getElementById('board');
     const hintEl    = document.getElementById('hint');
-    const gridEl    = document.getElementById('grid');
     const timeEl    = document.getElementById('time');
     const movesEl   = document.getElementById('moves');
-    const bestEl    = document.getElementById('best');
     const diffRange = document.getElementById('diffRange');
     const diffLabel = document.getElementById('diffLabel');
     const shuffleBtn= document.getElementById('shuffleBtn');
     const pauseBtn  = document.getElementById('pauseBtn');
     const hintToggle= document.getElementById('hintToggle');
-    const gridToggle= document.getElementById('gridToggle');
+    // gridToggle убран
     const confettiC = document.getElementById('confetti');
     const winModal  = document.getElementById('winModal');
     const winText   = document.getElementById('winText');
@@ -505,7 +483,6 @@
       if(!IMAGES.length) return;
       state.image = IMAGES[0];
 
-      // Галерея
       IMAGES.forEach((img, i)=>{
         const div = document.createElement('div');
         div.className = 'thumb'; div.dataset.id = img.id;
@@ -514,9 +491,6 @@
         im.alt = img.title;
         im.loading = 'lazy';
         div.appendChild(im);
-        const lab = document.createElement('div');
-        lab.className='tlabel'; lab.textContent = img.title;
-        div.appendChild(lab);
         if(i===0) div.classList.add('active');
         div.addEventListener('click', ()=> selectImage(img.id));
         galleryEl.appendChild(div);
@@ -534,9 +508,6 @@
       hintToggle.addEventListener('change', ()=>{
         hintEl.style.opacity = hintToggle.checked ? .35 : 0;
       });
-      gridToggle.addEventListener('change', ()=>{
-        gridEl.style.opacity = gridToggle.checked ? 1 : 0;
-      });
 
       if (previewToggle) {
         previewToggle.addEventListener('change', ()=>{
@@ -553,8 +524,6 @@
       shareBtn.addEventListener('click', share);
 
       window.addEventListener('resize', queueLayout);
-
-      // Старт
       loadImage(state.image);
     }
 
@@ -568,7 +537,6 @@
       loadImage(img);
     }
 
-    /*** ЗАГРУЗКА ИЗОБРАЖЕНИЯ ***/
     function loadImage(imageObj){
       creditEl.textContent = imageObj.credit || '';
       const img = new Image();
@@ -581,12 +549,11 @@
         newGame();
       };
       img.onerror = ()=>{
-        console.error('Не удалось загрузить:', imageObj.url);
+        console.error('Ошибка загрузки:', imageObj.url);
       };
       img.src = imageObj.url;
     }
 
-    /*** НОВАЯ ИГРА ***/
     function newGame(shuffleNow=false){
       stopTimer();
       state.secs=0; state.moves=0;
@@ -598,7 +565,6 @@
       winModal.classList.remove('visible');
       buildBoard();
       queueLayout();
-      setBestLabel();
       if(shuffleNow) shuffle();
     }
 
@@ -606,8 +572,6 @@
       const {rows, cols} = state;
       boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
       boardEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-      gridEl.style.setProperty('--cols', `calc(100% / ${cols})`);
-      gridEl.style.setProperty('--rows', `calc(100% / ${rows})`);
 
       const total = rows*cols;
       boardEl.innerHTML = '';
@@ -645,7 +609,6 @@
       }
     }
 
-    /*** ПЕРЕМЕШИВАНИЕ / РЕНДЕР ***/
     function shuffle(){
       const arr = state.order.slice();
       for(let i=arr.length-1;i>0;i--){
@@ -666,8 +629,6 @@
 
     function render(){
       boardEl.innerHTML = '';
-      const {rows, cols} = state;
-      gridEl.style.backgroundSize = `${100/cols}% 100%, 100% ${100/rows}%`;
       state.order.forEach((tileId, pos)=>{
         const tile = state.tiles[tileId];
         tile.classList.toggle('right', tileId===pos);
@@ -676,7 +637,6 @@
       queueLayout();
     }
 
-    /*** ВЗАИМОДЕЙСТВИЕ ***/
     function onTileClick(tileId){
       if(state.paused || state.done) return;
       if(!state.started){
@@ -706,7 +666,6 @@
       checkSolved();
     }
 
-    /*** ТАЙМЕР/ПАУЗА ***/
     function startTimer(){
       stopTimer();
       state.timer = setInterval(()=>{
@@ -739,7 +698,6 @@
       }
     }
 
-    /*** ПРОВЕРКА ***/
     function checkSolved(){
       if(!state.order.every((v,i)=>v===i)) return;
       state.done = true;
@@ -748,22 +706,8 @@
       const time = fmtTime(state.secs);
       winText.textContent = `Время: ${time} · Ходы: ${state.moves}`;
       winModal.classList.add('visible');
-      const key = bestKey();
-      const prev = parseInt(localStorage.getItem(key)||'0',10);
-      if(!prev || state.secs<prev){
-        localStorage.setItem(key, String(state.secs));
-        setBestLabel();
-      }
-    }
-    function bestKey(){
-      return `panorama-best-${state.rows}x${state.cols}-${state.image.id}`;
-    }
-    function setBestLabel(){
-      const s = localStorage.getItem(bestKey());
-      bestEl.textContent = s ? fmtTime(parseInt(s,10)) : '—';
     }
 
-    /*** КОНФЕТТИ ***/
     function fireConfetti(){
       const rect = gamePanel.getBoundingClientRect();
       const ctx = confettiC.getContext('2d');
@@ -794,7 +738,6 @@
       })();
     }
 
-    /*** СКАЧАТЬ ОТКРЫТКУ ***/
     function downloadPostcard(){
       if (!state.imgEl) {
         alert('Картинка ещё не успела загрузиться.');
@@ -833,7 +776,6 @@
       }
     }
 
-    /*** ПОДЕЛИТЬСЯ ***/
     async function share(){
       const text = `Моё время в пазле «Панорама»: ${fmtTime(state.secs)}, ходы: ${state.moves}, сложность ${state.rows}×${state.cols}.`;
       const url = location.href;

@@ -17,7 +17,7 @@
     body{
       margin:0; font-family:"Rubik",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text);
       background: radial-gradient(1200px 700px at 80% 10%, #1f2750 0%, #0b1020 55%), radial-gradient(900px 500px at 10% 90%, #1f2b33 0%, #0b1020 65%);
-      overflow:hidden;
+      overflow-x:hidden; overflow-y:auto;
     }
     .bg{position:fixed; inset:0; pointer-events:none;
       background: radial-gradient(60vmax 40vmax at 10% 85%, rgba(108,224,255,.10), transparent 60%),
@@ -42,8 +42,18 @@
     .section h2{font-size:14px; font-weight:600; margin:0; color:#cfe6ff; text-transform:uppercase; letter-spacing:.12em}
     .section .mut{color:var(--muted); font-size:13px}
 
-    .gallery{display:grid; grid-template-columns: repeat(3, 1fr); gap:8px}
-    .thumb{position:relative; border-radius:14px; overflow:hidden; aspect-ratio: 16/9; cursor:pointer; border:1px solid rgba(255,255,255,.08); background:#0e1428;}
+    .gallery{
+  display:flex;
+  flex-wrap:nowrap;
+  gap:8px;
+  overflow-x:auto;
+  padding-bottom:4px;
+  scroll-snap-type:x mandatory;
+}
+.gallery::-webkit-scrollbar{height:6px;}
+.gallery::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18); border-radius:4px;}
+.gallery::-webkit-scrollbar-track{background:transparent;}
+    .thumb{position:relative; border-radius:14px; overflow-x:hidden; overflow-y:auto; aspect-ratio: 16/9; cursor:pointer; border:1px solid rgba(255,255,255,.08); background:#0e1428;}
     .thumb img{display:block; width:100%; height:100%; object-fit:cover; transform:translateZ(0);}
     .thumb:after{content:''; position:absolute; inset:0; box-shadow: inset 0 -40px 80px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06);}
     .thumb .tlabel{position:absolute; left:8px; bottom:8px; font-size:12px; padding:6px 8px; border-radius:10px; backdrop-filter: blur(6px); background: rgba(0,0,0,.40); color:#eef7ff;}
@@ -68,7 +78,7 @@
     .stat{background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); border-radius:12px; padding:10px 12px; text-align:center}
     .stat b{display:block; font-size:18px; margin-top:2px}
 
-    .board-wrap{position:relative; background:var(--glass); border-radius: var(--radius); box-shadow:var(--shadow); overflow:hidden; min-height:0}
+    .board-wrap{position:relative; background:var(--glass); border-radius: var(--radius); box-shadow:var(--shadow); overflow-x:hidden; overflow-y:auto; min-height:0}
     .boardSizer{position:relative; width:100%;}
     .boardSizer::before{ content:''; display:block; padding-bottom: 62%; }
     @media (max-height: 760px) and (min-width: 981px){ .boardSizer::before{padding-bottom: 56%} }
@@ -91,6 +101,9 @@
     .overlayPause{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(6,10,22,.55);
       font-size:22px; font-weight:600; letter-spacing:.3px; opacity:0; pointer-events:none; transition: opacity .25s ease; }
 
+    .previewBox{position:absolute; right:12px; top:12px; width:190px; max-width:40%; background:rgba(5,10,20,.88); border-radius:12px; padding:6px; box-shadow:0 10px 24px rgba(0,0,0,.55); display:none; z-index:2;}
+    .previewBox img{width:100%; display:block; border-radius:8px;}
+
     .win-modal{ position:absolute; inset:auto 0 20px 0; margin:auto; width:min(640px, 92vw);
       background:linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.06)); border:1px solid rgba(255,255,255,.18);
       border-radius:16px; box-shadow: var(--shadow); padding:16px; display:none; z-index:4; }
@@ -103,6 +116,9 @@
 
     canvas.confetti{position:absolute; inset:0; pointer-events:none; z-index:3}
     .credit{font-size:12px; color:var(--muted)} .credit a{color:#b8ffde}
+    .thumb .tlabel{display:none;}
+    .credit{display:none;}
+
   </style>
 </head>
 <body>
@@ -121,10 +137,6 @@
       <div class="section">
         <h2>Выбор панорамы</h2>
         <div class="gallery" id="gallery"></div>
-        <label class="upload" id="uploadBtn">
-          <input type="file" accept="image/*" hidden id="fileInput" />
-          <span>Загрузить своё фото…</span>
-        </label>
         <div class="credit" id="credit"></div>
       </div>
 
@@ -143,6 +155,7 @@
         <div class="toggles">
           <label class="toggle"><input type="checkbox" id="hintToggle" /> Подсказка</label>
           <label class="toggle"><input type="checkbox" id="gridToggle" /> Сетка</label>
+          <label class="toggle"><input type="checkbox" id="previewToggle" /> Образец</label>
         </div>
         <div class="controls">
           <div class="btn primary" id="shuffleBtn">Перемешать</div>
@@ -166,6 +179,9 @@
         <div class="board" id="board"></div>
         <div class="hintOverlay" id="hint"></div>
         <div class="gridLines" id="grid"></div>
+        <div class="previewBox" id="previewBox">
+          <img id="previewImage" alt="Образец панорамы" />
+        </div>
         <canvas class="confetti" id="confetti"></canvas>
         <div class="overlayPause">Пауза</div>
         <div class="win-modal" id="winModal">
@@ -227,8 +243,9 @@
     const downloadBtn = document.getElementById('downloadBtn');
     const shareBtn  = document.getElementById('shareBtn');
     const gamePanel = document.getElementById('gamePanel');
-    const fileInput = document.getElementById('fileInput');
-    const uploadBtn = document.getElementById('uploadBtn');
+    const previewToggle = document.getElementById('previewToggle');
+    const previewBox = document.getElementById('previewBox');
+    const previewImage = document.getElementById('previewImage');
 
     /*** СОСТОЯНИЕ ***/
     let state = {
@@ -254,8 +271,6 @@
         div.addEventListener('click', ()=> selectImage(img.id));
         galleryEl.appendChild(div);
       });
-      uploadBtn.addEventListener('click', ()=> fileInput.click());
-      fileInput.addEventListener('change', onFile);
 
       diffRange.addEventListener('input', ()=> diffLabel.textContent = `${diffRange.value}×${diffRange.value}`);
       diffRange.addEventListener('change', ()=>{ state.rows = state.cols = parseInt(diffRange.value,10); newGame(); });
@@ -266,6 +281,13 @@
       againBtn.addEventListener('click', ()=> { winModal.classList.remove('visible'); newGame(true); });
       downloadBtn.addEventListener('click', downloadPostcard);
       shareBtn.addEventListener('click', share);
+
+      if (previewToggle) {
+        previewToggle.addEventListener('change', ()=>{
+          if (!previewBox) return;
+          previewBox.style.display = previewToggle.checked ? 'block' : 'none';
+        });
+      }
 
       window.addEventListener('resize', queueLayout);
 
@@ -281,31 +303,15 @@
       loadImage(img);
     }
 
-    function onFile(e){
-      const file = e.target.files && e.target.files[0];
-      if(!file) return;
-      const url = URL.createObjectURL(file);
-      const imgObj = { id:'local-'+Date.now(), title:file.name || 'Моё фото', credit:'Локальный файл · можно сохранять открытку', url, isLocal:true };
-      IMAGES.unshift(imgObj);
-      const div = document.createElement('div');
-      div.className='thumb active'; div.dataset.id = imgObj.id;
-      const im = document.createElement('img'); im.src=url; im.alt='Моё фото'; div.appendChild(im);
-      const lab = document.createElement('div'); lab.className='tlabel'; lab.textContent = 'Моё фото'; div.appendChild(lab);
-      galleryEl.prepend(div);
-      galleryEl.querySelectorAll('.thumb').forEach(t=> t.classList.toggle('active', t===div));
-      div.addEventListener('click', ()=> selectImage(imgObj.id));
-      selectImage(imgObj.id);
-      fileInput.value = '';
-    }
 
     /*** ЗАГРУЗКА ИЗОБРАЖЕНИЯ ***/
     function loadImage(imageObj){
       creditEl.textContent = imageObj.credit || '';
       const img = new Image();
-      img.crossOrigin = 'anonymous'; // для сохранения открытки когда сервер разрешает
       img.onload = ()=>{
         state.imgEl = img;
         hintEl.style.backgroundImage = `url("${imageObj.url}")`;
+        if (previewImage) previewImage.src = imageObj.url;
         newGame();
       };
       img.onerror = ()=>{ alert('Не удалось загрузить картинку. Попробуйте другую.'); };
@@ -435,10 +441,13 @@
 
     /*** КОНФЕТТИ ***/
     function fireConfetti(){
+      const rect = boardEl.getBoundingClientRect();
+      confettiC.style.width = rect.width + 'px';
+      confettiC.style.height = rect.height + 'px';
       const ctx = confettiC.getContext('2d');
-      confettiC.width = confettiC.offsetWidth*devicePixelRatio;
-      confettiC.height= confettiC.offsetHeight*devicePixelRatio;
-      const N = 150;
+      confettiC.width = rect.width*devicePixelRatio;
+      confettiC.height= rect.height*devicePixelRatio;
+      const N = 220;
       const parts = Array.from({length:N}).map(()=> ({
         x: Math.random()*confettiC.width, y: -Math.random()*confettiC.height*0.2, r: 3 + Math.random()*6,
         c: `hsl(${Math.floor(180+Math.random()*160)}, 100%, 65%)`, vX: (-1+Math.random()*2)*0.4*devicePixelRatio,
@@ -453,15 +462,38 @@
 
     /*** СКАЧАТЬ ОТКРЫТКУ ***/
     function downloadPostcard(){
+      if (!state.imgEl) {
+        alert('Картинка ещё не успела загрузиться. Попробуйте через секунду.');
+        return;
+      }
       const can = document.createElement('canvas');
       const w = 1600, h = 900; can.width=w; can.height=h;
       const ctx = can.getContext('2d');
-      try{ ctx.drawImage(state.imgEl, 0,0, w, h); }
-      catch(e){ alert('Браузер не разрешает сохранить открытку для этой панорамы. Загрузите своё фото или используйте встроенную.'); return; }
+      try{
+        ctx.drawImage(state.imgEl, 0,0, w, h);
+      }catch(e){
+        alert('Браузер не разрешает сохранить открытку для этой панорамы. Если вы открыли файл с диска (file:///), это нормальное ограничение безопасности. По ссылке с GitHub Pages открытка будет сохраняться.');
+        return;
+      }
       const pad = 28;
-      ctx.fillStyle='rgba(0,0,0,.35)'; ctx.fillRect(0, h-120, w, 120);
-      ctx.fillStyle='#eaffff'; ctx.font='700 42px Rubik, system-ui'; ctx.fillText('Пазл «Панорама» · Попутчик', pad, h-60);
-      ctx.font='400 26px Rubik, system-ui'; ctx.fillStyle='#d2f9ff'; ctx.fillText(`Собрано за ${fmtTime(state.secs)} · Ходы: ${state.moves} · ${state.rows}×${state.cols}`, pad, h-24);
+      const barH = 150;
+      ctx.fillStyle='rgba(0,0,0,.45)'; ctx.fillRect(0, h-barH, w, barH);
+
+      ctx.fillStyle='#eaffff'; ctx.font='700 38px Rubik, system-ui';
+      ctx.fillText('Рейс 001 · Москва → Санкт-Петербург', pad, h-100);
+
+      const now = new Date();
+      const dd = String(now.getDate()).padStart(2,'0');
+      const mm = String(now.getMonth()+1).padStart(2,'0');
+      const yyyy = now.getFullYear();
+      const dateStr = dd + '.' + mm + '.' + yyyy;
+
+      ctx.font='400 26px Rubik, system-ui'; ctx.fillStyle='#d2f9ff';
+      ctx.fillText(`Дата: ${dateStr} · Время: ${fmtTime(state.secs)} · Ходы: ${state.moves} · Сложность ${state.rows}×${state.cols}`, pad, h-62);
+
+      ctx.font='400 24px Rubik, system-ui'; ctx.fillStyle='#c7f7ff';
+      ctx.fillText('На память о поездке с «Попутчиком»', pad, h-28);
+
       const link = document.createElement('a'); link.download = 'панорама-открытка.png'; link.href = can.toDataURL('image/png'); link.click();
     }
 

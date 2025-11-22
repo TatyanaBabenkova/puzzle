@@ -19,9 +19,9 @@
       --glass: rgba(255,255,255,.08);
       --shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);
     }
+    
     *{box-sizing:border-box}
-  
-    *{box-sizing:border-box}
+    
     html,body{height:100%}
     body{
       margin:0;
@@ -30,7 +30,7 @@
       background:
         radial-gradient(1200px 700px at 80% 10%, #1f2750 0%, #0b1020 55%),
         radial-gradient(900px 500px at 10% 90%, #1f2b33 0%, #0b1020 65%);
-      overflow-x:hidden;
+      overflow-x:hidden; /* Прячем горизонтальную прокрутку у всего тела */
       overflow-y:auto;
     }
     .bg{
@@ -47,6 +47,7 @@
       100%{transform:translateY(0)}
     }
 
+    /* Основная обертка */
     .wrap{
       position:relative;
       min-height:100vh;
@@ -56,34 +57,52 @@
       padding:20px;
     }
 
-    /* Мобильный режим: одна колонка, компактнее отступы + ниже поле */
+    /* --- МОБИЛЬНАЯ АДАПТАЦИЯ (ИСПРАВЛЕНО) --- */
     @media (max-width: 980px){
-      .wrap{
-        grid-template-columns: 1fr;
-        grid-template-rows:auto 1fr;
-        padding:10px;
-        gap:10px;
+      .wrap {
+        display: flex;            /* Flex лучше контролирует ширину */
+        flex-direction: column;   /* Блоки друг под другом */
+        width: 100%;
+        max-width: 100vw;         /* Жестко запрещаем быть шире экрана */
+        padding: 10px;
+        gap: 15px;
+        overflow-x: hidden;       /* Обрезаем всё, что торчит */
       }
-      header{
-        padding:10px 12px;
-      }
-      .panel{
-        padding:12px;
-        gap:10px;
-      }
-     
-    }
 
-    /* Совсем маленькие экраны */
-    @media (max-width: 480px){
-      header h1{font-size:18px;}
-      header .sub{font-size:12px;}
-      .section h2{font-size:13px;}
-      .section .mut{font-size:12px;}
-      .btn{padding:10px 10px; font-size:13px;}
-    }
+      header, .panel {
+        width: 100%;
+        min-width: 0;             /* Разрешаем блокам сжиматься, если экран узкий */
+      }
 
- 
+      header {
+        padding: 10px 12px;
+      }
+      
+      .panel {
+        padding: 12px;
+      }
+
+      /* На телефоне делаем поле квадратным (1:1) */
+      .boardSizer::before {
+        padding-bottom: 100%;
+      }
+
+      /* Уменьшаем превью, чтобы не мешало */
+      .previewBox {
+        width: 35%;
+        max-width: none;
+        bottom: 8px; 
+        right: 8px;
+      }
+
+      /* Уменьшаем шрифты на совсем маленьких экранах */
+      @media (max-width: 480px){
+        header h1{font-size:18px;}
+        header .sub{font-size:12px;}
+        .section h2{font-size:13px;}
+        .btn{padding:10px; font-size:13px;}
+      }
+    }
 
     header{
       grid-column:1/-1;
@@ -100,6 +119,7 @@
       width:42px; height:42px; border-radius:12px;
       background: conic-gradient(from 200deg, #8be9ff, #baffd9, #8be9ff);
       box-shadow: 0 0 32px rgba(140,255,220,.25) inset;
+      flex-shrink: 0;
     }
     header h1{font-size:20px; margin:0; letter-spacing:.3px}
     header .sub{color:var(--muted); font-size:13px}
@@ -122,7 +142,7 @@
     }
     .section .mut{color:var(--muted); font-size:13px}
 
-    /* ГАЛЕРЕЯ ПАНОРАМ: 3 превью + горизонтальный скролл */
+    /* ГАЛЕРЕЯ */
     .gallery{
       display:flex;
       flex-wrap:nowrap;
@@ -138,19 +158,18 @@
     }
     .gallery::-webkit-scrollbar-track{background:transparent;}
 
-   .thumb{
-  position:relative;
-  border-radius:14px;
-  overflow:hidden;
-  cursor:pointer;
-  border:1px solid rgba(255,255,255,.08);
-  background:#0e1428;
-  flex:0 1 32%;      /* можно чуть сжиматься */
-  max-width:150px;
-  min-width:80px;
-  aspect-ratio:16/9;
-  scroll-snap-align:start;
-}
+    .thumb{
+      position:relative;
+      border-radius:14px;
+      overflow:hidden;
+      cursor:pointer;
+      border:1px solid rgba(255,255,255,.08);
+      background:#0e1428;
+      flex:0 0 auto; /* Не сжимаем превьюшки */
+      width: 100px;  /* Фиксированная ширина для удобства */
+      aspect-ratio:16/9;
+      scroll-snap-align:start;
+    }
     .thumb img{
       display:block;
       width:100%;
@@ -158,24 +177,7 @@
       object-fit:cover;
       transform:translateZ(0);
     }
-    .thumb:after{
-      content:'';
-      position:absolute;
-      inset:0;
-      box-shadow:
-        inset 0 -40px 80px rgba(0,0,0,.35),
-        inset 0 0 0 1px rgba(255,255,255,.06);
-    }
-    .thumb .tlabel{display:none;}
     .thumb.active{outline:2px solid var(--acc)}
-
-    .upload{
-      display:flex; align-items:center; justify-content:center; gap:8px;
-      font-size:14px; padding:10px 12px; border-radius:12px;
-      border:1px dashed rgba(255,255,255,.15);
-      color:#d9f7ff; cursor:pointer; background:rgba(255,255,255,.03);
-    }
-    .upload:hover{background:rgba(255,255,255,.06)}
 
     .controls{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
     .btn{
@@ -223,13 +225,12 @@
     }
     .stat b{display:block; font-size:18px; margin-top:2px}
 
-       .board-wrap{
+    .board-wrap{
       position:relative;
       background:var(--glass);
       border-radius: var(--radius);
       box-shadow:var(--shadow);
-      overflow-x:hidden;
-      overflow-y:auto;
+      overflow:hidden; /* Важно: прячем все что вылезает за границы поля */
       min-height:0;
     }
 
@@ -240,29 +241,12 @@
     .boardSizer::before{
       content:'';
       display:block;
-      padding-bottom:62%; /* базовое соотношение сторон на десктопе */
+      padding-bottom:62%; /* десктоп формат */
     }
-
-    /* Десктоп с невысокими экранами – чуть уменьшаем по высоте */
+    /* Коррекция высоты для ноутбуков */
     @media (max-height: 760px) and (min-width: 981px){
       .boardSizer::before{padding-bottom:56%;}
     }
-
-   /* Телефоны и планшеты – поле выше, но без выхода за экран */
-@media (max-width: 980px){
-  .board-wrap{
-    overflow:hidden;      /* на всякий случай рубим горизонтальный скролл внутри поля */
-  }
-  .boardSizer{
-    width:100%;           /* вписываемся в ширину панели, а не 100vw */
-    margin:0;             /* убираем отрицательный отступ */
-  }
-  .boardSizer::before{
-    padding-bottom:80%;   /* высоту поля оставляем как было */
-  }
-}
-
-
 
     .board{
       position:absolute; inset:0;
@@ -316,7 +300,6 @@
       opacity:0; pointer-events:none; transition: opacity .25s ease;
     }
 
-    /* ОБРАЗЕЦ */
     .previewBox{
       position:absolute;
       right:14px;
@@ -341,21 +324,12 @@
       opacity:1;
       transform:translateY(0);
     }
-    @media (max-width: 980px){
-      .previewBox{
-        width:38%;
-        max-width:none;
-        right:10px;
-        bottom:10px;
-      }
-    }
 
     .win-modal{
       position:absolute;
       inset:auto 0 20px 0;
       margin:auto;
       width:min(640px, 92vw);
-      /* более плотный тёмный фон, чтобы текст всегда читался */
       background:rgba(6,10,22,.9);
       border:1px solid rgba(255,255,255,.18);
       border-radius:16px;
@@ -365,8 +339,6 @@
       z-index:4;
       backdrop-filter: blur(18px);
     }
-   
-
     .win-modal.visible{display:block; animation:pop .25s ease}
     @keyframes pop{
       from{transform:translateY(10px); opacity:.0}
@@ -376,11 +348,7 @@
     .win-modal .sub{color:var(--muted); margin-top:6px}
     .win-actions{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap}
     .win-actions .btn{flex:1}
-
-/* Прячем кнопку "Поделиться" в окне победы */
-#shareBtn{
-  display:none;
-}
+    #shareBtn{display:none;}
 
     canvas.confetti{position:absolute; inset:0; pointer-events:none; z-index:3}
     .credit{font-size:12px; color:var(--muted)}
@@ -482,13 +450,12 @@
 
         // Преобразуем записи из JSON в нужный формат
         IMAGES = data.map((img, index) => ({
-          id: img.id || `local-${index + 1}`,            // id можно не задавать в JSON, сам придумается
+          id: img.id || `local-${index + 1}`,
           title: img.title || `Панорама ${index + 1}`,
           credit: img.credit || '',
-          url: `assets/img/${img.file}`                  // файл берём из поля "file"
+          url: `assets/img/${img.file}`
         }));
 
-        // Когда список картинок готов – запускаем игру
         init();
 
       } catch (err) {
@@ -496,7 +463,6 @@
         alert('Не удалось загрузить список картинок. Попробуй обновить страницу.');
       }
     }
-
 
     /*** ЭЛЕМЕНТЫ ***/
     const galleryEl = document.getElementById('gallery');
@@ -536,7 +502,10 @@
 
     /*** ИНИЦИАЛИЗАЦИЯ ***/
     function init(){
-      // Галерея через <img>, чтобы миниатюры были видны везде
+      if(!IMAGES.length) return;
+      state.image = IMAGES[0];
+
+      // Галерея
       IMAGES.forEach((img, i)=>{
         const div = document.createElement('div');
         div.className = 'thumb'; div.dataset.id = img.id;
@@ -612,7 +581,7 @@
         newGame();
       };
       img.onerror = ()=>{
-        alert('Не удалось загрузить картинку. Попробуйте другую.');
+        console.error('Не удалось загрузить:', imageObj.url);
       };
       img.src = imageObj.url;
     }
@@ -828,7 +797,7 @@
     /*** СКАЧАТЬ ОТКРЫТКУ ***/
     function downloadPostcard(){
       if (!state.imgEl) {
-        alert('Картинка ещё не успела загрузиться. Попробуйте через секунду.');
+        alert('Картинка ещё не успела загрузиться.');
         return;
       }
       const can = document.createElement('canvas');
@@ -860,27 +829,26 @@
         link.href = url;
         link.click();
       }catch(e){
-        alert('Браузер не разрешает сохранить открытку для этой панорамы. Чаще всего это ограничение для внешних картинок. Загрузите свои фото в репозиторий — для них открытка всегда работает.');
+        alert('Ошибка при создании открытки (CORS).');
       }
     }
 
     /*** ПОДЕЛИТЬСЯ ***/
     async function share(){
-      const text = `Моё время в пазле «Панорама»: ${fmtTime(state.secs)}, ходы: ${state.moves}, сложность ${state.rows}×${state.cols}. Попробуешь?`;
+      const text = `Моё время в пазле «Панорама»: ${fmtTime(state.secs)}, ходы: ${state.moves}, сложность ${state.rows}×${state.cols}.`;
       const url = location.href;
       if(navigator.share){
         try{ await navigator.share({title:'Пазл «Панорама»', text, url}); }
         catch(e){}
       } else {
         navigator.clipboard.writeText(url).then(()=>{
-          alert('Ссылка на игру скопирована в буфер обмена!');
+          alert('Ссылка скопирована!');
         });
       }
     }
 
-       loadImagesAndInit();
+    loadImagesAndInit();
   })();
-
   </script>
 </body>
 </html>

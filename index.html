@@ -437,20 +437,36 @@
 
   <script>
   ;(() => {
-    /*** Встроенные панорамы из локальной папки assets/img ***/
-    const IMAGES = [
-      { id:'local-forest',  title:'Зимний лес',           credit:'Фото: панорама 1',  url:'assets/img/1.jpg' },
-      { id:'local-autumn',  title:'Золотая осень',        credit:'Фото: панорама 2',  url:'assets/img/2.webp' },
-      { id:'local-river',   title:'Река в горах',         credit:'Фото: панорама 3',  url:'assets/img/3.jpg' },
-      { id:'local-peak',    title:'Горы и облака',        credit:'Фото: панорама 4',  url:'assets/img/4.jpg' },
-      { id:'local-lake1',   title:'Горное озеро',         credit:'Фото: панорама 5',  url:'assets/img/5.jpg' },
-      { id:'local-lake2',   title:'Озеро и лес',          credit:'Фото: панорама 6',  url:'assets/img/6.jpg' },
-      { id:'local-teddy',   title:'Плюшевый мишка',       credit:'Фото: панорама 7',  url:'assets/img/7.jpg' },
-      { id:'local-toys',    title:'Игрушки в костюмах',   credit:'Фото: панорама 8',  url:'assets/img/8.webp' },
-      { id:'local-car',     title:'Суперкар на шоссе',    credit:'Фото: панорама 9',  url:'assets/img/9.jpg' },
-      { id:'local-horse',   title:'Лошадь в снегу',       credit:'Фото: панорама 10', url:'assets/img/horse.png' }
+   
+    /*** Панорамы из локальной папки assets/img читаем из JSON ***/
+    let IMAGES = [];
 
-    ];
+    async function loadImagesAndInit() {
+      try {
+        const response = await fetch('assets/img/images.json');
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+
+        const data = await response.json();
+
+        // Преобразуем записи из JSON в нужный формат
+        IMAGES = data.map((img, index) => ({
+          id: img.id || `local-${index + 1}`,            // id можно не задавать в JSON, сам придумается
+          title: img.title || `Панорама ${index + 1}`,
+          credit: img.credit || '',
+          url: `assets/img/${img.file}`                  // файл берём из поля "file"
+        }));
+
+        // Когда список картинок готов – запускаем игру
+        init();
+
+      } catch (err) {
+        console.error('Не удалось загрузить images.json', err);
+        alert('Не удалось загрузить список картинок. Попробуй обновить страницу.');
+      }
+    }
+
 
     /*** ЭЛЕМЕНТЫ ***/
     const galleryEl = document.getElementById('gallery');
@@ -832,8 +848,9 @@
       }
     }
 
-    init();
+       loadImagesAndInit();
   })();
+
   </script>
 </body>
 </html>

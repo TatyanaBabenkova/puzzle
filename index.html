@@ -136,12 +136,14 @@
     }
     .section .mut{color:var(--muted); font-size:13px}
 
+    /* ИСПРАВЛЕННАЯ ГАЛЕРЕЯ */
     .gallery{
       display:flex;
       flex-wrap:nowrap;
-      gap:8px;
+      gap:12px; /* Чуть больше расстояние между картинками */
       overflow-x:auto;
-      padding-bottom:4px;
+      /* Добавляем отступы контейнеру, чтобы рамка активного элемента не обрезалась */
+      padding: 6px 4px 10px 4px; 
       scroll-snap-type:x mandatory;
     }
     .gallery::-webkit-scrollbar{height:6px;}
@@ -151,29 +153,38 @@
     }
     .gallery::-webkit-scrollbar-track{background:transparent;}
 
-    /* ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ ПРЕВЬЮ (КАРУСЕЛЬ) */
+    /* ИСПРАВЛЕННЫЕ ПРЕВЬЮ */
     .thumb{
       position:relative;
       border-radius:10px;
       overflow:hidden;
       cursor:pointer;
       border:1px solid rgba(255,255,255,.15);
-      background:#000;
+      background:#0e1428;
       flex:0 0 auto;
-      width: 140px; /* Сделали шире */
-      height: 70px; /* Фиксируем высоту */
+      
+      /* Вернули прежние пропорции (16:9), ширина компактная */
+      width: 100px;
+      aspect-ratio: 16/9;
+      height: auto; /* Высота подстроится сама */
+      
       scroll-snap-align:start;
-      transition: transform .1s;
+      transition: all .2s ease;
     }
     .thumb img{
       width:100%; height:100%; 
-      object-fit:cover; /* Картинка заполняет область красиво */
+      object-fit:cover;
       transition: opacity .2s;
     }
     .thumb:hover img { opacity: 0.8; }
+    
+    /* ЯРКОЕ ВЫДЕЛЕНИЕ АКТИВНОГО */
     .thumb.active{
-      outline:2px solid var(--acc);
-      border-color: var(--acc);
+      /* Светящаяся рамка через box-shadow, чтобы не влиять на размер */
+      border-color: #7df2ff;
+      box-shadow: 0 0 0 2px #7df2ff, 0 0 12px rgba(125, 242, 255, 0.4);
+      transform: translateY(-2px); /* Слегка приподнимаем */
+      z-index: 2;
     }
 
     .controls{display:grid; grid-template-columns: 1fr 1fr; gap:8px}
@@ -451,8 +462,6 @@
     const gamePanel = document.getElementById('gamePanel');
     const previewToggle = document.getElementById('previewToggle');
     const previewBox = document.getElementById('previewBox');
-    
-    // Новая кнопка
     const smartActionBtn = document.getElementById('smartActionBtn');
 
     let state = {
@@ -463,11 +472,11 @@
       started:false, paused:false, done:false,
       moves:0, secs:0, timer:null,
       selectedIndex: null,
-      // Храним данные о рейсе здесь
+      // Храним данные о рейсе. По умолчанию null
       meta: {
-        train: '001',
-        from: 'Москва',
-        to: 'Санкт-Петербург'
+        train: null,
+        from: null,
+        to: null
       }
     };
 
@@ -475,15 +484,14 @@
       if(!IMAGES.length) return;
       state.image = IMAGES[0];
 
-      // 1. Читаем параметры из URL (скрыто от пользователя)
+      // 1. Читаем параметры из URL
       const urlParams = new URLSearchParams(window.location.search);
       if(urlParams.has('train')) state.meta.train = urlParams.get('train');
       if(urlParams.has('from'))  state.meta.from  = urlParams.get('from');
       if(urlParams.has('to'))    state.meta.to    = urlParams.get('to');
 
-      // 2. Определяем логику кнопки (Мобилка = Поделиться, ПК = Скачать)
+      // 2. Логика кнопки (Мобилка = Поделиться, ПК = Скачать)
       const canShare = navigator.canShare && navigator.canShare({ files: [new File([], 't.png', {type:'image/png'})] });
-      // Простая проверка на мобильное устройство или поддержку share
       const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
       if (canShare && isMobile) {
@@ -763,7 +771,7 @@
           // 1. Рисуем картинку
           ctx.drawImage(state.imgEl, 0,0, w, h);
 
-          // 2. Берем данные (уже загруженные в state из URL)
+          // 2. Берем данные
           const { train, from, to } = state.meta;
 
           // 3. Рисуем плашку
@@ -773,11 +781,18 @@
           
           const pad = 40;
           
-          // Текст: Маршрут
+          // 4. Логика текста: Либо Рейс, либо Мотивация
           ctx.fillStyle='#7df2ff';
           ctx.font='700 42px Rubik, system-ui, sans-serif';
-          const routeText = `Рейс ${train} · ${from} → ${to}`;
-          ctx.fillText(routeText, pad, h-95, w - (pad*2));
+          
+          let mainText = '';
+          if (train && from && to) {
+            mainText = `Рейс ${train} · ${from} → ${to}`;
+          } else {
+            mainText = 'Путешествуй с удовольствием!';
+          }
+          
+          ctx.fillText(mainText, pad, h-95, w - (pad*2));
 
           // Текст: Детали игры
           const now = new Date();
@@ -823,7 +838,6 @@
             console.log('Share closed', err);
           }
        } else {
-          // Фолбэк на скачивание, если share не сработал
           downloadImage();
        }
     }

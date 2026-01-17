@@ -73,18 +73,9 @@
         min-width: 0;
       }
 
-      header {
-        padding: 8px 12px;
-      }
-      
-      .panel {
-        padding: 12px;
-        gap: 10px;
-      }
-
-      .hide-on-mobile {
-        display: none !important;
-      }
+      header { padding: 8px 12px; }
+      .panel { padding: 12px; gap: 10px; }
+      .hide-on-mobile { display: none !important; }
 
       .compact-row {
         display: grid;
@@ -93,9 +84,7 @@
         gap: 8px;
       }
 
-      .boardSizer::before {
-        padding-bottom: 100%;
-      }
+      .boardSizer::before { padding-bottom: 100%; }
 
       .previewBox {
         width: 55%;
@@ -162,20 +151,30 @@
     }
     .gallery::-webkit-scrollbar-track{background:transparent;}
 
+    /* ОБНОВЛЕННЫЕ СТИЛИ ДЛЯ ПРЕВЬЮ (КАРУСЕЛЬ) */
     .thumb{
       position:relative;
-      border-radius:14px;
+      border-radius:10px;
       overflow:hidden;
       cursor:pointer;
-      border:1px solid rgba(255,255,255,.08);
-      background:#0e1428;
+      border:1px solid rgba(255,255,255,.15);
+      background:#000;
       flex:0 0 auto;
-      width: 90px;
-      aspect-ratio:16/9;
+      width: 140px; /* Сделали шире */
+      height: 70px; /* Фиксируем высоту */
       scroll-snap-align:start;
+      transition: transform .1s;
     }
-    .thumb img{width:100%; height:100%; object-fit:cover;}
-    .thumb.active{outline:2px solid var(--acc)}
+    .thumb img{
+      width:100%; height:100%; 
+      object-fit:cover; /* Картинка заполняет область красиво */
+      transition: opacity .2s;
+    }
+    .thumb:hover img { opacity: 0.8; }
+    .thumb.active{
+      outline:2px solid var(--acc);
+      border-color: var(--acc);
+    }
 
     .controls{display:grid; grid-template-columns: 1fr 1fr; gap:8px}
     .btn{
@@ -253,7 +252,6 @@
       background-size:cover;
       filter: saturate(120%) contrast(105%) brightness(105%);
     }
-    .gridLines{ display:none; }
 
     .tile{
       position:relative; user-select:none; -webkit-user-drag:none;
@@ -332,7 +330,6 @@
     .win-modal .sub{color:var(--muted); margin-top:6px}
     .win-actions{margin-top:12px; display:flex; gap:10px; flex-wrap:wrap}
     .win-actions .btn{flex:1}
-    #shareBtn{display:none;}
 
     canvas.confetti{position:absolute; inset:0; pointer-events:none; z-index:3}
     .credit{font-size:12px; color:var(--muted); margin-top: 4px;}
@@ -398,15 +395,16 @@
         <canvas class="confetti" id="confetti"></canvas>
         <div class="overlayPause">Пауза</div>
         <div class="previewBox" id="previewBox"></div>
+        
         <div class="win-modal" id="winModal">
           <div class="title">Собрано! 🎉</div>
           <div class="sub" id="winText"></div>
           <div class="win-actions">
             <div class="btn primary" id="againBtn">Ещё раз</div>
-            <div class="btn" id="downloadBtn">Скачать открытку</div>
-            <div class="btn" id="shareBtn">Поделиться</div>
+            <div class="btn" id="smartActionBtn">Скачать открытку</div>
           </div>
         </div>
+
       </div>
     </main>
   </div>
@@ -450,11 +448,12 @@
     const winModal  = document.getElementById('winModal');
     const winText   = document.getElementById('winText');
     const againBtn  = document.getElementById('againBtn');
-    const downloadBtn = document.getElementById('downloadBtn');
-    const shareBtn  = document.getElementById('shareBtn');
     const gamePanel = document.getElementById('gamePanel');
     const previewToggle = document.getElementById('previewToggle');
     const previewBox = document.getElementById('previewBox');
+    
+    // Новая кнопка
+    const smartActionBtn = document.getElementById('smartActionBtn');
 
     let state = {
       rows: 4, cols: 4,
@@ -463,13 +462,39 @@
       order: [], tiles: [],
       started:false, paused:false, done:false,
       moves:0, secs:0, timer:null,
-      selectedIndex: null
+      selectedIndex: null,
+      // Храним данные о рейсе здесь
+      meta: {
+        train: '001',
+        from: 'Москва',
+        to: 'Санкт-Петербург'
+      }
     };
 
     function init(){
       if(!IMAGES.length) return;
       state.image = IMAGES[0];
 
+      // 1. Читаем параметры из URL (скрыто от пользователя)
+      const urlParams = new URLSearchParams(window.location.search);
+      if(urlParams.has('train')) state.meta.train = urlParams.get('train');
+      if(urlParams.has('from'))  state.meta.from  = urlParams.get('from');
+      if(urlParams.has('to'))    state.meta.to    = urlParams.get('to');
+
+      // 2. Определяем логику кнопки (Мобилка = Поделиться, ПК = Скачать)
+      const canShare = navigator.canShare && navigator.canShare({ files: [new File([], 't.png', {type:'image/png'})] });
+      // Простая проверка на мобильное устройство или поддержку share
+      const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+      if (canShare && isMobile) {
+         smartActionBtn.textContent = 'Поделиться открыткой';
+         smartActionBtn.onclick = shareImage;
+      } else {
+         smartActionBtn.textContent = 'Скачать открытку';
+         smartActionBtn.onclick = downloadImage;
+      }
+
+      // Генерация галереи
       IMAGES.forEach((img, i)=>{
         const div = document.createElement('div');
         div.className = 'thumb'; div.dataset.id = img.id;
@@ -507,10 +532,6 @@
         winModal.classList.remove('visible');
         newGame(true);
       });
-      
-      // Используем новую функцию скачивания
-      downloadBtn.addEventListener('click', downloadPostcard);
-      shareBtn.addEventListener('click', share);
 
       window.addEventListener('resize', queueLayout);
       loadImage(state.image);
@@ -728,93 +749,83 @@
     }
 
     /**
-     * УЛУЧШЕННАЯ ФУНКЦИЯ СКАЧИВАНИЯ / ПОДЕЛИТЬСЯ
-     * Использует Blob для корректных имен файлов и WebShare API для мобильных
+     * ЛОГИКА СОЗДАНИЯ ОТКРЫТКИ
      */
-    function downloadPostcard(){
-      if (!state.imgEl) {
-        alert('Картинка ещё не успела загрузиться.');
-        return;
-      }
-      // Создаем канвас
-      const can = document.createElement('canvas');
-      const w = 1600, h = 900; can.width=w; can.height=h;
-      const ctx = can.getContext('2d');
-      
-      try {
-        // Рисуем открытку
-        ctx.drawImage(state.imgEl, 0,0, w, h);
-        const pad = 28;
-        const barH = 150;
-        ctx.fillStyle='rgba(0,0,0,.45)';
-        ctx.fillRect(0, h-barH, w, barH);
-        ctx.fillStyle='#eaffff';
-        ctx.font='700 38px Rubik, system-ui';
-        ctx.fillText('Рейс 001 · Москва → Санкт-Петербург', pad, h-100);
-        const now = new Date();
-        const dd = String(now.getDate()).padStart(2,'0');
-        const mm = String(now.getMonth()+1).padStart(2,'0');
-        const yyyy = now.getFullYear();
-        const dateStr = dd + '.' + mm + '.' + yyyy;
-        ctx.font='400 26px Rubik, system-ui';
-        ctx.fillStyle='#d2f9ff';
-        ctx.fillText(`Дата: ${dateStr} · Время: ${fmtTime(state.secs)} · Ходы: ${state.moves} · Сложность ${state.rows}×${state.cols}`, pad, h-62);
-        ctx.font='400 24px Rubik, system-ui';
-        ctx.fillStyle='#c7f7ff';
-        ctx.fillText('На память о поездке с «Попутчиком»', pad, h-28);
-
-        // НОВАЯ ЛОГИКА: Конвертируем в BLOB (файл)
-        can.toBlob(async function(blob) {
-          if (!blob) return;
-
-          // 1. Попробуем использовать нативное "Поделиться" (для телефонов)
-          // Требуется HTTPS (на GitHub Pages есть)
-          const file = new File([blob], "panorama-postcard.png", { type: "image/png" });
+    function createCardBlob() {
+       return new Promise((resolve) => {
+          if (!state.imgEl) { resolve(null); return; }
           
-          if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            try {
-              await navigator.share({
-                files: [file],
-                title: 'Моя панорама',
-                text: 'Я собрал пазл!'
-              });
-              return; // Если поделились успешно, выходим
-            } catch (err) {
-              // Если пользователь отменил или ошибка, идем к скачиванию
-              console.log('Share cancelled or failed', err);
-            }
-          }
+          const can = document.createElement('canvas');
+          const w = 1600, h = 900; 
+          can.width = w; can.height = h;
+          const ctx = can.getContext('2d');
 
-          // 2. Если "Поделиться" недоступно (или это десктоп), скачиваем файл
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.download = 'panorama-postcard.png'; // Теперь имя будет корректным
-          link.href = url;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
+          // 1. Рисуем картинку
+          ctx.drawImage(state.imgEl, 0,0, w, h);
+
+          // 2. Берем данные (уже загруженные в state из URL)
+          const { train, from, to } = state.meta;
+
+          // 3. Рисуем плашку
+          const barH = 160;
+          ctx.fillStyle='rgba(0,0,0,.65)';
+          ctx.fillRect(0, h-barH, w, barH);
           
-          // Чистим память
-          setTimeout(() => URL.revokeObjectURL(url), 100);
-        }, 'image/png');
+          const pad = 40;
+          
+          // Текст: Маршрут
+          ctx.fillStyle='#7df2ff';
+          ctx.font='700 42px Rubik, system-ui, sans-serif';
+          const routeText = `Рейс ${train} · ${from} → ${to}`;
+          ctx.fillText(routeText, pad, h-95, w - (pad*2));
 
-      } catch(e) {
-        console.error(e);
-        alert('Ошибка при создании открытки (возможно, защита браузера).');
-      }
+          // Текст: Детали игры
+          const now = new Date();
+          const dateStr = now.toLocaleDateString('ru-RU');
+          ctx.font='400 28px Rubik, system-ui, sans-serif';
+          ctx.fillStyle='#e9f1ff';
+          ctx.fillText(`Дата: ${dateStr} · Время: ${fmtTime(state.secs)} · Ходы: ${state.moves}`, pad, h-45);
+
+          can.toBlob(blob => resolve(blob), 'image/png', 0.95);
+       });
     }
 
-    async function share(){
-      const text = `Моё время в пазле «Панорама»: ${fmtTime(state.secs)}, ходы: ${state.moves}, сложность ${state.rows}×${state.cols}.`;
-      const url = location.href;
-      if(navigator.share){
-        try{ await navigator.share({title:'Пазл «Панорама»', text, url}); }
-        catch(e){}
-      } else {
-        navigator.clipboard.writeText(url).then(()=>{
-          alert('Ссылка скопирована!');
-        });
-      }
+    // Скачивание (Desktop)
+    async function downloadImage() {
+       const blob = await createCardBlob();
+       if(!blob) return alert('Ошибка создания изображения');
+       
+       const url = URL.createObjectURL(blob);
+       const link = document.createElement('a');
+       link.download = `panorama_${Date.now()}.png`;
+       link.href = url;
+       document.body.appendChild(link);
+       link.click();
+       document.body.removeChild(link);
+       setTimeout(() => URL.revokeObjectURL(url), 100);
+    }
+
+    // Поделиться (Mobile)
+    async function shareImage() {
+       const blob = await createCardBlob();
+       if(!blob) return alert('Ошибка создания изображения');
+
+       const file = new File([blob], "panorama.png", { type: "image/png" });
+       
+       if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Поездка с Попутчиком',
+              text: `Я собрал пазл за ${fmtTime(state.secs)}!`
+            });
+          } catch (err) {
+            console.log('Share closed', err);
+          }
+       } else {
+          // Фолбэк на скачивание, если share не сработал
+          downloadImage();
+       }
     }
 
     loadImagesAndInit();

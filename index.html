@@ -15,7 +15,7 @@
       --acc:#6ce0ff;
       --text:#e9f1ff;
       --muted:#a8b0c7;
-      --radius:18px;
+      --radius:16px;
       --glass: rgba(255,255,255,.08);
       --shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);
     }
@@ -23,9 +23,10 @@
     *{box-sizing:border-box}
     
     html,body{
-      min-height:100%;
+      height: 100%;
       margin:0; 
       padding:0;
+      overflow: hidden; /* Блокируем скролл всей страницы, скроллим только панели */
     }
     body{
       font-family:"Rubik",system-ui,-apple-system,sans-serif;
@@ -33,8 +34,6 @@
       background:
         radial-gradient(1200px 700px at 80% 10%, #1f2750 0%, #0b1020 55%),
         radial-gradient(900px 500px at 10% 90%, #1f2b33 0%, #0b1020 65%);
-      overflow-x: hidden;
-      overflow-y: auto; /* Разрешаем скролл, чтобы не было черного экрана */
     }
     .bg{
       position:fixed; inset:0; pointer-events:none;
@@ -51,41 +50,41 @@
       100%{transform:translateY(0)}
     }
 
-    /* ОСНОВНАЯ СЕТКА (DESKTOP) */
+    /* --- СЕТКА ЛЕЙАУТА --- */
     .wrap{
       position:relative;
-      min-height:100vh;
+      height: 100dvh; /* dynamic viewport height для мобилок */
       display:grid;
-      /* Левая колонка фикс, правая резина */
-      grid-template-columns: 340px 1fr;
-      /* Верхняя строка под контент, нижняя занимает остаток */
-      grid-template-rows: max-content 1fr; 
-      gap:20px;
-      padding:20px;
+      /* ПК: колонка меню (320px) + контент */
+      grid-template-columns: 320px 1fr;
+      grid-template-rows: auto 1fr; /* Шапка + контент */
+      gap:16px;
+      padding:16px;
     }
 
-    /* Шапка */
+    /* ШАПКА */
     header{
-      grid-column:1/-1; /* На всю ширину */
+      grid-column:1/-1;
       display:flex;
       align-items:center;
       gap:12px;
-      padding:14px 18px;
+      padding:12px 16px;
       background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
       border-radius: var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter: blur(10px);
+      flex-shrink: 0;
     }
     header .logo{
-      width:42px; height:42px; border-radius:12px;
+      width:38px; height:38px; border-radius:10px;
       background: conic-gradient(from 200deg, #8be9ff, #baffd9, #8be9ff);
       box-shadow: 0 0 32px rgba(140,255,220,.25) inset;
       flex-shrink: 0;
     }
-    header h1{font-size:20px; margin:0; letter-spacing:.3px}
-    header .sub{color:var(--muted); font-size:13px}
+    header h1{font-size:18px; margin:0; letter-spacing:.3px}
+    header .sub{color:var(--muted); font-size:12px}
 
-    /* Панели */
+    /* ПАНЕЛЬ НАСТРОЕК */
     .panel{
       display:flex;
       flex-direction:column;
@@ -95,74 +94,55 @@
       border-radius: var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter: blur(16px);
-    }
-
-    /* Сайдбар слева */
-    #leftPanel {
-      height: fit-content; /* Высота по содержимому */
+      overflow-y: auto; /* Скролл внутри панели если не влезает */
     }
 
     .section{display:flex; flex-direction:column; gap:8px}
     .section h2{
-      font-size:14px; font-weight:600; margin:0;
+      font-size:13px; font-weight:600; margin:0;
       color:#cfe6ff; text-transform:uppercase; letter-spacing:.12em;
     }
-    .section .mut{color:var(--muted); font-size:13px; line-height: 1.4;}
+    .section .mut{color:var(--muted); font-size:12px; line-height: 1.3;}
 
-    /* Галерея */
+    /* ГАЛЕРЕЯ */
     .gallery{
-      display:flex;
-      flex-wrap:nowrap;
-      gap:10px;
-      overflow-x:auto;
-      padding: 4px;
+      display:flex; flex-wrap:nowrap; gap:8px;
+      overflow-x:auto; padding: 4px;
       scroll-snap-type:x mandatory;
     }
     .thumb{
-      position:relative;
-      border-radius:10px;
-      overflow:hidden;
-      cursor:pointer;
-      border:1px solid rgba(255,255,255,.15);
-      background:#0e1428;
-      flex:0 0 auto;
-      width: 100px;
-      aspect-ratio: 16/9;
-      transition: all .2s ease;
-      scroll-snap-align:start;
+      position:relative; border-radius:8px; overflow:hidden;
+      cursor:pointer; border:1px solid rgba(255,255,255,.15);
+      background:#0e1428; flex:0 0 auto;
+      width: 90px; aspect-ratio: 16/9;
+      transition: all .2s ease; scroll-snap-align:start;
     }
-    .thumb img{
-      width:100%; height:100%; object-fit:cover; opacity: 0.7; transition: opacity .2s;
-    }
-    .thumb:hover img { opacity: 1; }
+    .thumb img{ width:100%; height:100%; object-fit:cover; opacity: 0.7; }
     .thumb.active{
       border-color: #7df2ff;
       box-shadow: 0 0 0 2px #7df2ff, 0 0 12px rgba(125, 242, 255, 0.4);
-      transform: translateY(-2px);
-      z-index: 2;
+      transform: translateY(-2px); z-index: 2;
     }
     .thumb.active img { opacity: 1; }
 
-    /* Контролы */
+    /* ЭЛЕМЕНТЫ УПРАВЛЕНИЯ */
     .controls{display:grid; grid-template-columns: 1fr 1fr; gap:8px}
     .btn{
       user-select:none; -webkit-tap-highlight-color:transparent;
       background:linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
       border:1px solid rgba(255,255,255,.10);
-      color:white; padding:10px 12px; border-radius:12px;
+      color:white; padding:10px; border-radius:10px;
       cursor:pointer; text-align:center; box-shadow:var(--shadow);
-      transition: transform .08s ease;
       font-weight:600; font-size:13px;
     }
-    .btn:active{transform: translateY(1px)}
     .btn.primary{
       background:linear-gradient(180deg, rgba(140,255,220,.4), rgba(140,255,220,.08));
       border-color: rgba(161,255,207,.45); color:#04161a;
     }
 
     .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
-    .row .label{font-size:14px; color:#cfe6ff}
-    .row .value{font-weight:600}
+    .row .label{font-size:13px; color:#cfe6ff}
+    .row .value{font-weight:600; font-size:14px;}
     .range{accent-color:#7df2ff; width:100%; margin: 4px 0;}
 
     .toggles{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:4px;}
@@ -175,172 +155,157 @@
     }
     .toggle input{accent-color:#7df2ff}
 
-    .stats{
-      display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:6px;
-    }
+    .stats{display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:6px;}
     .stat{
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.10);
-      border-radius:12px; padding:8px 10px;
-      text-align:center; font-size: 12px; color: var(--muted);
+      border-radius:10px; padding:6px 8px;
+      text-align:center; font-size: 11px; color: var(--muted);
     }
-    .stat b{display:block; font-size:16px; margin-top:2px; color: #fff;}
+    .stat b{display:block; font-size:14px; margin-top:2px; color: #fff;}
 
-    /* Игровая зона */
+    /* ОБЛАСТЬ ИГРЫ */
     .board-wrap{
       position:relative;
-      overflow:hidden;
-      display: flex; /* Центрируем содержимое */
-      align-items: center;
+      /* Это важно! Контейнер занимает всё свободное место */
+      width: 100%; height: 100%; 
+      display: flex; 
+      align-items: center; 
       justify-content: center;
-      min-height: 400px; /* Минимальная высота чтобы не схлопывалось */
+      overflow: hidden;
     }
 
-    .boardSizer{
-      position:relative; 
-      width:100%; 
-      max-width: 1100px;
-      /* Аспект 16/9, но может меняться */
-      aspect-ratio: 16/9; 
-    }
-
+    /* Сам пазл. Размеры будем задавать JS-ом, чтобы вписать идеально */
     .board{
-      position:absolute; inset:0;
-      display:grid; place-items:stretch;
+      position:relative; 
+      display:grid; 
+      place-items:stretch;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       transition: filter .3s ease;
     }
     
     .tile{
       position:relative; user-select:none; -webkit-user-drag:none;
       background-repeat:no-repeat;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
-      cursor:pointer; border-radius:6px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08);
+      cursor:pointer; border-radius:4px;
       transition: transform .08s ease, box-shadow .15s ease;
       background-color:#111828;
     }
-    .tile:active{transform: scale(.98)}
+    .tile:active{transform: scale(.96)}
     .tile.right{
-      box-shadow:0 0 0 3px rgba(161,255,207,.95), inset 0 0 0 1px rgba(255,255,255,.08);
+      box-shadow:0 0 0 2px rgba(161,255,207,.9), inset 0 0 0 1px rgba(255,255,255,.2);
       z-index: 1;
     }
     .tile.selected{
-      outline:3px solid var(--acc); outline-offset:-2px;
-      box-shadow:0 0 0 3px rgba(108,224,255,.95), inset 0 0 0 1px rgba(255,255,255,.08);
+      outline:2px solid var(--acc); outline-offset:-2px;
+      box-shadow:0 0 0 3px rgba(108,224,255,.8), inset 0 0 0 1px rgba(255,255,255,.2);
       z-index: 2;
     }
 
-    .paused .board{filter: grayscale(1) brightness(.8)}
+    .paused .board{filter: grayscale(1) brightness(.5)}
     .paused .overlayPause{opacity:1; pointer-events:auto}
     .overlayPause{
       position:absolute; inset:0;
       display:flex; align-items:center; justify-content:center;
-      background:rgba(6,10,22,.55);
-      font-size:22px; font-weight:600; letter-spacing:.3px;
+      background:rgba(6,10,22,.5);
+      font-size:20px; font-weight:600; letter-spacing:.5px;
       opacity:0; pointer-events:none; transition: opacity .25s ease;
-      z-index: 10;
+      z-index: 10; border-radius: var(--radius);
     }
 
-    /* Образец */
+    /* ОБРАЗЕЦ */
     .previewBox{
-      position:absolute; right:14px; bottom:14px;
-      width:220px; aspect-ratio:16/9;
+      position:absolute; right:10px; bottom:10px;
+      width:180px; aspect-ratio:16/9;
       border-radius:12px;
       background-position:center; background-size:cover;
       box-shadow:0 10px 25px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.2);
       opacity:0; pointer-events:none;
-      transform:translateY(6px);
+      transform:translateY(10px);
       transition:opacity .25s ease, transform .25s ease;
       z-index:5;
     }
     .previewBox.visible{ opacity:1; transform:translateY(0); }
 
-    /* Модалка победы */
+    /* МОДАЛКА */
     .win-modal{
-      position:absolute;
-      left: 50%; top: 50%;
+      position:absolute; left: 50%; top: 50%;
       transform: translate(-50%, -50%) scale(0.9);
-      width:min(400px, 90%);
+      width:min(360px, 90%);
       background:rgba(6,10,22,.95);
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:24px;
-      box-shadow: 0 20px 50px rgba(0,0,0,.5);
-      padding:24px;
-      display:none;
-      z-index:20;
-      backdrop-filter: blur(20px);
-      text-align: center;
-      opacity: 0;
-      transition: all .3s ease;
+      border:1px solid rgba(255,255,255,.15);
+      border-radius:20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
+      padding:20px;
+      display:none; z-index:20;
+      backdrop-filter: blur(20px); text-align: center;
+      opacity: 0; transition: all .3s ease;
     }
-    .win-modal.visible{
-      display:block; 
-      opacity: 1;
-      transform: translate(-50%, -50%) scale(1);
-    }
-    .win-modal .title{font-size:24px; font-weight:700; margin-bottom: 8px;}
-    .win-modal .sub{color:var(--muted); margin-bottom: 20px;}
-    .win-actions{display:flex; flex-direction: column; gap:10px;}
-
+    .win-modal.visible{ display:block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    .win-modal .title{font-size:22px; font-weight:700; margin-bottom: 6px;}
+    .win-modal .sub{color:var(--muted); margin-bottom: 16px; font-size: 14px;}
+    .win-actions{display:flex; flex-direction: column; gap:8px;}
     canvas.confetti{position:absolute; inset:0; pointer-events:none; z-index:3}
-    .credit{font-size:12px; color:var(--muted); margin-top: 4px;}
+    .credit{font-size:11px; color:var(--muted); margin-top: 4px;}
 
-    /* --- МОБИЛЬНЫЙ ПОРТРЕТ (ОБЫЧНЫЙ ТЕЛЕФОН) --- */
+    /* --- АДАПТИВНОСТЬ --- */
+
+    /* 1. ПОРТРЕТ (ТЕЛЕФОН ВЕРТИКАЛЬНО) */
     @media (max-width: 980px) and (orientation: portrait){
       .wrap {
         display: flex;
         flex-direction: column;
-        height: auto;
-        min-height: 100vh;
-        gap: 15px; padding: 15px;
+        padding: 12px; gap: 12px;
+        height: 100dvh; /* Строго высота экрана */
+        overflow: hidden;
       }
-      header { position: sticky; top: 0; z-index: 10; padding: 10px 14px; }
+      
+      header { padding: 8px 12px; flex-shrink: 0; }
+      
+      .panel {
+        padding: 12px; gap: 10px;
+        flex-shrink: 0; /* Панель не сжимается больше необходимого */
+        max-height: 45vh; /* Ограничиваем высоту панели */
+      }
+      
+      .board-wrap {
+        flex-grow: 1; /* Занимает ВСЁ оставшееся место */
+        width: 100%;
+        min-height: 0; /* Важно для flex контейнера */
+        background: transparent;
+        box-shadow: none;
+      }
+
       .hide-on-mobile { display: none !important; }
-      .previewBox { width: 140px; bottom: 10px; right: 10px; }
-      .boardSizer{ width: 100%; aspect-ratio: 16/9; }
+      .previewBox { width: 120px; bottom: 5px; right: 5px; }
     }
 
-    /* --- МОБИЛЬНЫЙ ЛАНДШАФТ (ГОРИЗОНТАЛЬНО) --- */
-    /* Здесь мы скрываем шапку и делаем раскладку как на ПК, но компактнее */
+    /* 2. ЛАНДШАФТ (ТЕЛЕФОН ГОРИЗОНТАЛЬНО) */
     @media (max-width: 920px) and (orientation: landscape) {
       .wrap {
-        /* Возвращаем грид */
-        display: grid;
-        grid-template-columns: 240px 1fr; /* Узкая панель + доска */
-        grid-template-rows: 1fr; /* Одна строка на всю высоту */
-        height: 100vh; /* Фиксируем высоту экрана */
-        padding: 10px;
-        gap: 10px;
-        align-items: center; /* Центрируем по вертикали */
+        grid-template-columns: 260px 1fr; /* Узкая панель + место для доски */
+        grid-template-rows: 1fr; /* Одна строка */
+        padding: 10px; gap: 10px;
       }
 
-      /* СКРЫВАЕМ ШАПКУ ЧТОБЫ БЫЛО МЕСТО */
-      header { display: none; }
+      header { display: none; } /* Скрываем шапку для места */
 
       .panel {
-        overflow-y: auto; /* Скролл если настройки не влезают */
-        max-height: 100%;
+        height: 100%; 
         padding: 10px;
       }
-
-      .board-wrap {
-        height: 100%; /* На всю высоту */
-        min-height: 0;
-      }
-
-      .boardSizer {
-        /* Подбираем размер чтобы влезало в экран телефона */
-        width: auto;
-        height: auto;
-        max-height: 90vh; /* Ограничиваем высоту */
-        aspect-ratio: 16/9;
-      }
-
-      .previewBox { width: 100px; bottom: 5px; right: 5px; }
       
-      /* Уменьшаем элементы для компактности */
+      .board-wrap {
+        width: 100%; height: 100%;
+        background: transparent;
+        box-shadow: none;
+      }
+
       .gallery { padding-bottom: 0; }
-      .thumb { width: 80px; }
-      .btn { padding: 6px 10px; font-size: 12px; }
+      .thumb { width: 70px; }
+      .btn { padding: 8px; font-size: 12px; }
+      .previewBox { width: 100px; bottom: 5px; right: 5px; }
     }
   </style>
 </head>
@@ -395,13 +360,12 @@
       </div>
     </aside>
 
-    <main class="panel board-wrap" id="gamePanel">
-      <div class="boardSizer">
-        <div class="board" id="board"></div>
-        <canvas class="confetti" id="confetti"></canvas>
-        <div class="overlayPause">Пауза</div>
-        <div class="previewBox" id="previewBox"></div>
-      </div>
+    <main class="panel board-wrap" id="boardContainer">
+      <div class="board" id="board"></div>
+      
+      <canvas class="confetti" id="confetti"></canvas>
+      <div class="overlayPause">Пауза</div>
+      <div class="previewBox" id="previewBox"></div>
     </main>
     
     <div class="win-modal" id="winModal">
@@ -417,30 +381,31 @@
   <script>
   ;(() => {
     let IMAGES = [];
+    // Соотношение сторон по умолчанию 16:9
+    const IMAGE_ASPECT = 16 / 9;
 
     async function loadImagesAndInit() {
       try {
         const response = await fetch('assets/img/images.json');
         if (!response.ok) throw new Error('HTTP ' + response.status);
         const data = await response.json();
-
         IMAGES = data.map((img, index) => ({
           id: img.id || `local-${index + 1}`,
           title: img.title || `Панорама ${index + 1}`,
           credit: img.credit || '',
           url: `assets/img/${img.file}`
         }));
-
         init();
       } catch (err) {
-        console.error('Ошибка загрузки JSON', err);
-        alert('Не удалось загрузить список картинок.');
+        console.error(err);
+        alert('Ошибка загрузки картинок.');
       }
     }
 
     const galleryEl = document.getElementById('gallery');
     const creditEl  = document.getElementById('credit');
     const boardEl   = document.getElementById('board');
+    const boardContainer = document.getElementById('boardContainer'); // ВАЖНО
     const timeEl    = document.getElementById('time');
     const movesEl   = document.getElementById('moves');
     const diffRange = document.getElementById('diffRange');
@@ -451,7 +416,7 @@
     const winModal  = document.getElementById('winModal');
     const winText   = document.getElementById('winText');
     const againBtn  = document.getElementById('againBtn');
-    const gamePanel = document.getElementById('gamePanel');
+    const gamePanel = document.querySelector('.panel'); // Для паузы
     const previewToggle = document.getElementById('previewToggle');
     const previewBox = document.getElementById('previewBox');
     const smartActionBtn = document.getElementById('smartActionBtn');
@@ -471,13 +436,11 @@
       if(!IMAGES.length) return;
       state.image = IMAGES[0];
 
-      // URL параметры
       const urlParams = new URLSearchParams(window.location.search);
       if(urlParams.has('train')) state.meta.train = urlParams.get('train');
       if(urlParams.has('from'))  state.meta.from  = urlParams.get('from');
       if(urlParams.has('to'))    state.meta.to    = urlParams.get('to');
 
-      // Кнопка шаринга
       const canShare = navigator.canShare && navigator.canShare({ files: [new File([], 't.png', {type:'image/png'})] });
       const isMobile = /Mobi|Android/i.test(navigator.userAgent);
       if (canShare && isMobile) {
@@ -492,9 +455,7 @@
         const div = document.createElement('div');
         div.className = 'thumb'; div.dataset.id = img.id;
         const im = document.createElement('img');
-        im.src = img.url;
-        im.alt = img.title;
-        im.loading = 'lazy';
+        im.src = img.url; im.loading = 'lazy';
         div.appendChild(im);
         if(i===0) div.classList.add('active');
         div.addEventListener('click', ()=> selectImage(img.id));
@@ -523,6 +484,7 @@
         newGame(true);
       });
 
+      // Слушаем ресайз и пересчитываем размеры доски
       window.addEventListener('resize', queueLayout);
       loadImage(state.image);
     }
@@ -557,7 +519,7 @@
       state.selectedIndex=null; state.paused=false;
       timeEl.textContent = '00:00';
       movesEl.textContent = '0';
-      gamePanel.classList.remove('paused');
+      boardContainer.classList.remove('paused');
       winModal.classList.remove('visible');
       buildBoard();
       queueLayout();
@@ -566,9 +528,7 @@
 
     function buildBoard(){
       const {rows, cols} = state;
-      boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-      boardEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-
+      // Grid CSS зададим в JS при layout, так как размеры меняются
       const total = rows*cols;
       boardEl.innerHTML = '';
       state.tiles = [];
@@ -587,25 +547,56 @@
       requestAnimationFrame(()=>requestAnimationFrame(layoutBoard));
     }
 
+    // --- ГЛАВНАЯ ФУНКЦИЯ РАСЧЕТА РАЗМЕРОВ ---
     function layoutBoard(){
-      // Вычисляем размеры фона
-      // Используем getBoundingClientRect контейнера, чтобы точно знать размер
-      const wrapRect = boardEl.parentElement.getBoundingClientRect();
-      // Важно: берем ширину контейнера, но сохраняем пропорцию
-      const bgW = boardEl.clientWidth;
-      const bgH = boardEl.clientHeight;
+      if(!boardContainer) return;
+
+      // 1. Получаем доступное место в контейнере
+      // Используем clientWidth/Height, они учитывают реальное место без скроллов
+      const availW = boardContainer.clientWidth; 
+      const availH = boardContainer.clientHeight;
       
+      // Отступы для красоты (padding контейнера)
+      const padding = 10; 
+      const safeW = availW - padding*2;
+      const safeH = availH - padding*2;
+
+      // 2. Рассчитываем размеры, чтобы вписать прямоугольник 16:9 (IMAGE_ASPECT)
+      let finalW, finalH;
+
+      // Если ограничить по ширине, какая будет высота?
+      const hFromW = safeW / IMAGE_ASPECT;
+      
+      if (hFromW <= safeH) {
+        // Влезло по высоте! Значит лимитируем по ширине.
+        finalW = safeW;
+        finalH = hFromW;
+      } else {
+        // Не влезло, значит лимитируем по высоте.
+        finalH = safeH;
+        finalW = safeH * IMAGE_ASPECT;
+      }
+
+      // 3. Применяем размеры к .board
+      boardEl.style.width = Math.floor(finalW) + 'px';
+      boardEl.style.height = Math.floor(finalH) + 'px';
+      
+      // Настраиваем сетку
       const {rows, cols} = state;
-      const tileW = bgW / cols;
-      const tileH = bgH / rows;
+      boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+      boardEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
+
+      // 4. Настраиваем фон тайлов
+      const tileW = finalW / cols;
+      const tileH = finalH / rows;
 
       for(let id=0; id<state.tiles.length; id++){
         const tile = state.tiles[id]; if(!tile) continue;
         const cx = id % cols;
         const cy = Math.floor(id / cols);
         tile.style.backgroundImage = `url("${state.image.url}")`;
-        // Фон должен быть размером со всю доску
-        tile.style.backgroundSize = `${bgW}px ${bgH}px`;
+        // Фон должен быть размером с пазл
+        tile.style.backgroundSize = `${Math.floor(finalW)}px ${Math.floor(finalH)}px`;
         tile.style.backgroundPosition = `-${cx*tileW}px -${cy*tileH}px`;
       }
     }
@@ -685,11 +676,11 @@
       state.paused = !state.paused;
       if(state.paused){
         stopTimer();
-        gamePanel.classList.add('paused');
+        boardContainer.classList.add('paused');
         pauseBtn.textContent='Играть';
       } else {
         if(state.started) startTimer();
-        gamePanel.classList.remove('paused');
+        boardContainer.classList.remove('paused');
         pauseBtn.textContent='Пауза';
       }
     }
@@ -705,10 +696,10 @@
     }
 
     function fireConfetti(){
-      const rect = gamePanel.getBoundingClientRect();
+      const rect = boardContainer.getBoundingClientRect();
       const ctx = confettiC.getContext('2d');
-      confettiC.width = rect.width * devicePixelRatio;
-      confettiC.height = rect.height * devicePixelRatio;
+      confettiC.width = rect.width;
+      confettiC.height = rect.height;
       
       const N = 150;
       const parts = Array.from({length:N}).map(()=> ({

@@ -23,10 +23,8 @@
     *{box-sizing:border-box}
     
     html,body{
-      height: 100%;
-      margin:0; 
-      padding:0;
-      overflow: hidden; /* Блокируем скролл всей страницы, скроллим только панели */
+      height: 100%; margin:0; padding:0;
+      overflow: hidden; 
     }
     body{
       font-family:"Rubik",system-ui,-apple-system,sans-serif;
@@ -50,24 +48,20 @@
       100%{transform:translateY(0)}
     }
 
-    /* --- СЕТКА ЛЕЙАУТА --- */
+    /* --- СЕТКА --- */
     .wrap{
       position:relative;
-      height: 100dvh; /* dynamic viewport height для мобилок */
+      height: 100dvh; 
       display:grid;
-      /* ПК: колонка меню (320px) + контент */
       grid-template-columns: 320px 1fr;
-      grid-template-rows: auto 1fr; /* Шапка + контент */
-      gap:16px;
-      padding:16px;
+      grid-template-rows: auto 1fr;
+      gap:16px; padding:16px;
     }
 
     /* ШАПКА */
     header{
       grid-column:1/-1;
-      display:flex;
-      align-items:center;
-      gap:12px;
+      display:flex; align-items:center; gap:12px;
       padding:12px 16px;
       background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
       border-radius: var(--radius);
@@ -84,17 +78,15 @@
     header h1{font-size:18px; margin:0; letter-spacing:.3px}
     header .sub{color:var(--muted); font-size:12px}
 
-    /* ПАНЕЛЬ НАСТРОЕК */
+    /* ПАНЕЛЬ */
     .panel{
-      display:flex;
-      flex-direction:column;
-      gap:14px;
+      display:flex; flex-direction:column; gap:14px;
       padding:16px;
       background:var(--glass);
       border-radius: var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter: blur(16px);
-      overflow-y: auto; /* Скролл внутри панели если не влезает */
+      overflow-y: auto; 
     }
 
     .section{display:flex; flex-direction:column; gap:8px}
@@ -125,7 +117,7 @@
     }
     .thumb.active img { opacity: 1; }
 
-    /* ЭЛЕМЕНТЫ УПРАВЛЕНИЯ */
+    /* ЭЛЕМЕНТЫ */
     .controls{display:grid; grid-template-columns: 1fr 1fr; gap:8px}
     .btn{
       user-select:none; -webkit-tap-highlight-color:transparent;
@@ -134,10 +126,26 @@
       color:white; padding:10px; border-radius:10px;
       cursor:pointer; text-align:center; box-shadow:var(--shadow);
       font-weight:600; font-size:13px;
+      transition: transform 0.1s, opacity 0.2s; /* Анимация нажатия */
+    }
+    /* Эффект нажатия (кнопка проваливается) */
+    .btn:active {
+      transform: scale(0.96);
+      opacity: 0.8;
     }
     .btn.primary{
       background:linear-gradient(180deg, rgba(140,255,220,.4), rgba(140,255,220,.08));
       border-color: rgba(161,255,207,.45); color:#04161a;
+    }
+
+    /* Кнопка Старт в неактивном состоянии (пока не нажали) */
+    #shuffleBtn {
+       animation: pulseBtn 2s infinite;
+    }
+    @keyframes pulseBtn {
+       0% { box-shadow: 0 0 0 0 rgba(108, 224, 255, 0.4); }
+       70% { box-shadow: 0 0 0 6px rgba(108, 224, 255, 0); }
+       100% { box-shadow: 0 0 0 0 rgba(108, 224, 255, 0); }
     }
 
     .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
@@ -164,22 +172,17 @@
     }
     .stat b{display:block; font-size:14px; margin-top:2px; color: #fff;}
 
-    /* ОБЛАСТЬ ИГРЫ */
+    /* ИГРОВАЯ ОБЛАСТЬ */
     .board-wrap{
       position:relative;
-      /* Это важно! Контейнер занимает всё свободное место */
       width: 100%; height: 100%; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
+      display: flex; align-items: center; justify-content: center;
       overflow: hidden;
     }
 
-    /* Сам пазл. Размеры будем задавать JS-ом, чтобы вписать идеально */
     .board{
       position:relative; 
-      display:grid; 
-      place-items:stretch;
+      display:grid; place-items:stretch;
       box-shadow: 0 10px 40px rgba(0,0,0,0.5);
       transition: filter .3s ease;
     }
@@ -192,6 +195,13 @@
       transition: transform .08s ease, box-shadow .15s ease;
       background-color:#111828;
     }
+    /* Если игра не началась (не перемешано) - запрещаем клик и наведение */
+    .board.locked .tile {
+       cursor: default; 
+       filter: brightness(0.9);
+    }
+    .board.locked .tile:active { transform: none; }
+
     .tile:active{transform: scale(.96)}
     .tile.right{
       box-shadow:0 0 0 2px rgba(161,255,207,.9), inset 0 0 0 1px rgba(255,255,255,.2);
@@ -228,564 +238,17 @@
     }
     .previewBox.visible{ opacity:1; transform:translateY(0); }
 
-    /* МОДАЛКА */
+    /* МОДАЛКА ПОБЕДЫ */
     .win-modal{
       position:absolute; left: 50%; top: 50%;
       transform: translate(-50%, -50%) scale(0.9);
       width:min(360px, 90%);
-      background:rgba(6,10,22,.95);
-      border:1px solid rgba(255,255,255,.15);
+      background:rgba(6,10,22, 0.98); /* Почти непрозрачный фон */
+      border:1px solid rgba(255,255,255,.25);
       border-radius:20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.6);
-      padding:20px;
-      display:none; z-index:20;
-      backdrop-filter: blur(20px); text-align: center;
-      opacity: 0; transition: all .3s ease;
-    }
-    .win-modal.visible{ display:block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    .win-modal .title{font-size:22px; font-weight:700; margin-bottom: 6px;}
-    .win-modal .sub{color:var(--muted); margin-bottom: 16px; font-size: 14px;}
-    .win-actions{display:flex; flex-direction: column; gap:8px;}
-    canvas.confetti{position:absolute; inset:0; pointer-events:none; z-index:3}
-    .credit{font-size:11px; color:var(--muted); margin-top: 4px;}
-
-    /* --- АДАПТИВНОСТЬ --- */
-
-    /* 1. ПОРТРЕТ (ТЕЛЕФОН ВЕРТИКАЛЬНО) */
-    @media (max-width: 980px) and (orientation: portrait){
-      .wrap {
-        display: flex;
-        flex-direction: column;
-        padding: 12px; gap: 12px;
-        height: 100dvh; /* Строго высота экрана */
-        overflow: hidden;
-      }
-      
-      header { padding: 8px 12px; flex-shrink: 0; }
-      
-      .panel {
-        padding: 12px; gap: 10px;
-        flex-shrink: 0; /* Панель не сжимается больше необходимого */
-        max-height: 45vh; /* Ограничиваем высоту панели */
-      }
-      
-      .board-wrap {
-        flex-grow: 1; /* Занимает ВСЁ оставшееся место */
-        width: 100%;
-        min-height: 0; /* Важно для flex контейнера */
-        background: transparent;
-        box-shadow: none;
-      }
-
-      .hide-on-mobile { display: none !important; }
-      .previewBox { width: 120px; bottom: 5px; right: 5px; }
-    }
-
-    /* 2. ЛАНДШАФТ (ТЕЛЕФОН ГОРИЗОНТАЛЬНО) */
-    @media (max-width: 920px) and (orientation: landscape) {
-      .wrap {
-        grid-template-columns: 260px 1fr; /* Узкая панель + место для доски */
-        grid-template-rows: 1fr; /* Одна строка */
-        padding: 10px; gap: 10px;
-      }
-
-      header { display: none; } /* Скрываем шапку для места */
-
-      .panel {
-        height: 100%; 
-        padding: 10px;
-      }
-      
-      .board-wrap {
-        width: 100%; height: 100%;
-        background: transparent;
-        box-shadow: none;
-      }
-
-      .gallery { padding-bottom: 0; }
-      .thumb { width: 70px; }
-      .btn { padding: 8px; font-size: 12px; }
-      .previewBox { width: 100px; bottom: 5px; right: 5px; }
-    }
-  </style>
-</head>
-<body>
-  <div class="bg"></div>
-
-  <div class="wrap">
-    <header>
-      <div class="logo" aria-hidden="true"></div>
-      <div>
-        <h1>Пазл «Панорама»</h1>
-        <div class="sub">Собери панораму.</div>
-      </div>
-    </header>
-
-    <aside class="panel" id="leftPanel">
-      <div class="section">
-        <div class="gallery" id="gallery"></div>
-        <div class="credit" id="credit"></div>
-      </div>
-
-      <div class="section">
-        <div class="row" style="margin-bottom:-4px">
-          <div class="label">Сложность</div>
-          <div class="value"><span id="diffLabel">4×4</span></div>
-        </div>
-        <input type="range" min="3" max="8" value="4" class="range" id="diffRange" />
-      </div>
-
-      <div class="section">
-        <div class="toggles">
-          <label class="toggle"><input type="checkbox" id="previewToggle" /> Образец</label>
-        </div>
-        
-        <div class="compact-row">
-          <div class="controls">
-            <div class="btn primary" id="shuffleBtn">Старт</div>
-            <div class="btn" id="pauseBtn">Пауза</div>
-          </div>
-          <div class="stats">
-            <div class="stat">Время<b id="time">00:00</b></div>
-            <div class="stat">Ходы<b id="moves">0</b></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="section hide-on-mobile">
-        <h2>Совет</h2>
-        <div class="mut">
-          Кликни по двум фрагментам, чтобы поменять их местами.
-        </div>
-      </div>
-    </aside>
-
-    <main class="panel board-wrap" id="boardContainer">
-      <div class="board" id="board"></div>
-      
-      <canvas class="confetti" id="confetti"></canvas>
-      <div class="overlayPause">Пауза</div>
-      <div class="previewBox" id="previewBox"></div>
-    </main>
-    
-    <div class="win-modal" id="winModal">
-      <div class="title">Собрано! 🎉</div>
-      <div class="sub" id="winText"></div>
-      <div class="win-actions">
-        <div class="btn primary" id="againBtn">Ещё раз</div>
-        <div class="btn" id="smartActionBtn">Скачать открытку</div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-  ;(() => {
-    let IMAGES = [];
-    // Соотношение сторон по умолчанию 16:9
-    const IMAGE_ASPECT = 16 / 9;
-
-    async function loadImagesAndInit() {
-      try {
-        const response = await fetch('assets/img/images.json');
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        const data = await response.json();
-        IMAGES = data.map((img, index) => ({
-          id: img.id || `local-${index + 1}`,
-          title: img.title || `Панорама ${index + 1}`,
-          credit: img.credit || '',
-          url: `assets/img/${img.file}`
-        }));
-        init();
-      } catch (err) {
-        console.error(err);
-        alert('Ошибка загрузки картинок.');
-      }
-    }
-
-    const galleryEl = document.getElementById('gallery');
-    const creditEl  = document.getElementById('credit');
-    const boardEl   = document.getElementById('board');
-    const boardContainer = document.getElementById('boardContainer'); // ВАЖНО
-    const timeEl    = document.getElementById('time');
-    const movesEl   = document.getElementById('moves');
-    const diffRange = document.getElementById('diffRange');
-    const diffLabel = document.getElementById('diffLabel');
-    const shuffleBtn= document.getElementById('shuffleBtn');
-    const pauseBtn  = document.getElementById('pauseBtn');
-    const confettiC = document.getElementById('confetti');
-    const winModal  = document.getElementById('winModal');
-    const winText   = document.getElementById('winText');
-    const againBtn  = document.getElementById('againBtn');
-    const gamePanel = document.querySelector('.panel'); // Для паузы
-    const previewToggle = document.getElementById('previewToggle');
-    const previewBox = document.getElementById('previewBox');
-    const smartActionBtn = document.getElementById('smartActionBtn');
-
-    let state = {
-      rows: 4, cols: 4,
-      image: IMAGES[0],
-      imgEl: null,
-      order: [], tiles: [],
-      started:false, paused:false, done:false,
-      moves:0, secs:0, timer:null,
-      selectedIndex: null,
-      meta: { train: null, from: null, to: null }
-    };
-
-    function init(){
-      if(!IMAGES.length) return;
-      state.image = IMAGES[0];
-
-      const urlParams = new URLSearchParams(window.location.search);
-      if(urlParams.has('train')) state.meta.train = urlParams.get('train');
-      if(urlParams.has('from'))  state.meta.from  = urlParams.get('from');
-      if(urlParams.has('to'))    state.meta.to    = urlParams.get('to');
-
-      const canShare = navigator.canShare && navigator.canShare({ files: [new File([], 't.png', {type:'image/png'})] });
-      const isMobile = /Mobi|Android/i.test(navigator.userAgent);
-      if (canShare && isMobile) {
-         smartActionBtn.textContent = 'Поделиться открыткой';
-         smartActionBtn.onclick = shareImage;
-      } else {
-         smartActionBtn.textContent = 'Скачать открытку';
-         smartActionBtn.onclick = downloadImage;
-      }
-
-      IMAGES.forEach((img, i)=>{
-        const div = document.createElement('div');
-        div.className = 'thumb'; div.dataset.id = img.id;
-        const im = document.createElement('img');
-        im.src = img.url; im.loading = 'lazy';
-        div.appendChild(im);
-        if(i===0) div.classList.add('active');
-        div.addEventListener('click', ()=> selectImage(img.id));
-        galleryEl.appendChild(div);
-      });
-
-      diffRange.addEventListener('input', ()=>{
-        diffLabel.textContent = `${diffRange.value}×${diffRange.value}`;
-      });
-      diffRange.addEventListener('change', ()=>{
-        state.rows = state.cols = parseInt(diffRange.value,10);
-        newGame();
-      });
-      shuffleBtn.addEventListener('click', ()=> newGame(true));
-      pauseBtn.addEventListener('click', togglePause);
-
-      if (previewToggle) {
-        previewToggle.addEventListener('change', ()=>{
-          if (!previewBox) return;
-          previewBox.classList.toggle('visible', previewToggle.checked);
-        });
-      }
-
-      againBtn.addEventListener('click', ()=>{
-        winModal.classList.remove('visible');
-        newGame(true);
-      });
-
-      // Слушаем ресайз и пересчитываем размеры доски
-      window.addEventListener('resize', queueLayout);
-      loadImage(state.image);
-    }
-
-    function selectImage(id){
-      const img = IMAGES.find(x=>x.id===id);
-      if(!img) return;
-      state.image = img;
-      galleryEl.querySelectorAll('.thumb').forEach(t=>{
-        t.classList.toggle('active', t.dataset.id===id);
-      });
-      loadImage(img);
-    }
-
-    function loadImage(imageObj){
-      creditEl.textContent = imageObj.credit || '';
-      const img = new Image();
-      img.onload = ()=>{
-        state.imgEl = img;
-        if (previewBox) {
-          previewBox.style.backgroundImage = `url("${imageObj.url}")`;
-        }
-        newGame();
-      };
-      img.src = imageObj.url;
-    }
-
-    function newGame(shuffleNow=false){
-      stopTimer();
-      state.secs=0; state.moves=0;
-      state.done=false; state.started=false;
-      state.selectedIndex=null; state.paused=false;
-      timeEl.textContent = '00:00';
-      movesEl.textContent = '0';
-      boardContainer.classList.remove('paused');
-      winModal.classList.remove('visible');
-      buildBoard();
-      queueLayout();
-      if(shuffleNow) shuffle();
-    }
-
-    function buildBoard(){
-      const {rows, cols} = state;
-      // Grid CSS зададим в JS при layout, так как размеры меняются
-      const total = rows*cols;
-      boardEl.innerHTML = '';
-      state.tiles = [];
-      state.order = [...Array(total).keys()];
-      for(let id=0; id<total; id++){
-        const tile = document.createElement('div');
-        tile.className='tile';
-        tile.dataset.id = id;
-        tile.addEventListener('click', ()=> onTileClick(id));
-        state.tiles[id] = tile;
-      }
-      render();
-    }
-
-    function queueLayout(){
-      requestAnimationFrame(()=>requestAnimationFrame(layoutBoard));
-    }
-
-    // --- ГЛАВНАЯ ФУНКЦИЯ РАСЧЕТА РАЗМЕРОВ ---
-    function layoutBoard(){
-      if(!boardContainer) return;
-
-      // 1. Получаем доступное место в контейнере
-      // Используем clientWidth/Height, они учитывают реальное место без скроллов
-      const availW = boardContainer.clientWidth; 
-      const availH = boardContainer.clientHeight;
-      
-      // Отступы для красоты (padding контейнера)
-      const padding = 10; 
-      const safeW = availW - padding*2;
-      const safeH = availH - padding*2;
-
-      // 2. Рассчитываем размеры, чтобы вписать прямоугольник 16:9 (IMAGE_ASPECT)
-      let finalW, finalH;
-
-      // Если ограничить по ширине, какая будет высота?
-      const hFromW = safeW / IMAGE_ASPECT;
-      
-      if (hFromW <= safeH) {
-        // Влезло по высоте! Значит лимитируем по ширине.
-        finalW = safeW;
-        finalH = hFromW;
-      } else {
-        // Не влезло, значит лимитируем по высоте.
-        finalH = safeH;
-        finalW = safeH * IMAGE_ASPECT;
-      }
-
-      // 3. Применяем размеры к .board
-      boardEl.style.width = Math.floor(finalW) + 'px';
-      boardEl.style.height = Math.floor(finalH) + 'px';
-      
-      // Настраиваем сетку
-      const {rows, cols} = state;
-      boardEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-      boardEl.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-
-      // 4. Настраиваем фон тайлов
-      const tileW = finalW / cols;
-      const tileH = finalH / rows;
-
-      for(let id=0; id<state.tiles.length; id++){
-        const tile = state.tiles[id]; if(!tile) continue;
-        const cx = id % cols;
-        const cy = Math.floor(id / cols);
-        tile.style.backgroundImage = `url("${state.image.url}")`;
-        // Фон должен быть размером с пазл
-        tile.style.backgroundSize = `${Math.floor(finalW)}px ${Math.floor(finalH)}px`;
-        tile.style.backgroundPosition = `-${cx*tileW}px -${cy*tileH}px`;
-      }
-    }
-
-    function shuffle(){
-      const arr = state.order.slice();
-      for(let i=arr.length-1;i>0;i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [arr[i], arr[j]] = [arr[j], arr[i]];
-      }
-      if(arr.every((v,i)=>v===i)){
-        [arr[0], arr[1]] = [arr[1], arr[0]];
-      }
-      state.order = arr;
-      state.moves=0; movesEl.textContent='0';
-      state.started=false;
-      state.secs=0; timeEl.textContent='00:00';
-      render();
-    }
-
-    function render(){
-      boardEl.innerHTML = '';
-      state.order.forEach((tileId, pos)=>{
-        const tile = state.tiles[tileId];
-        tile.classList.toggle('right', tileId===pos);
-        boardEl.appendChild(tile);
-      });
-      queueLayout();
-    }
-
-    function onTileClick(tileId){
-      if(state.paused || state.done) return;
-      if(!state.started){
-        startTimer();
-        state.started=true;
-      }
-      if(state.selectedIndex===null){
-        state.selectedIndex = state.order.indexOf(tileId);
-        state.tiles[tileId].classList.add('selected');
-        return;
-      }
-      const firstPos = state.selectedIndex;
-      const secondPos = state.order.indexOf(tileId);
-      if(firstPos===secondPos){
-        state.tiles[tileId].classList.remove('selected');
-        state.selectedIndex=null;
-        return;
-      }
-      const firstTileId = state.order[firstPos];
-      state.tiles[firstTileId].classList.remove('selected');
-      [state.order[firstPos], state.order[secondPos]] =
-        [state.order[secondPos], state.order[firstPos]];
-      state.selectedIndex=null;
-      state.moves++;
-      movesEl.textContent = String(state.moves);
-      render();
-      checkSolved();
-    }
-
-    function startTimer(){
-      stopTimer();
-      state.timer = setInterval(()=>{
-        state.secs++;
-        timeEl.textContent = fmtTime(state.secs);
-      }, 1000);
-    }
-    function stopTimer(){
-      if(state.timer){ clearInterval(state.timer); state.timer=null; }
-    }
-    function fmtTime(s){
-      const m = Math.floor(s/60).toString().padStart(2,'0');
-      const ss= (s%60).toString().padStart(2,'0');
-      return `${m}:${ss}`;
-    }
-    function togglePause(){
-      if(state.done) return;
-      state.paused = !state.paused;
-      if(state.paused){
-        stopTimer();
-        boardContainer.classList.add('paused');
-        pauseBtn.textContent='Играть';
-      } else {
-        if(state.started) startTimer();
-        boardContainer.classList.remove('paused');
-        pauseBtn.textContent='Пауза';
-      }
-    }
-
-    function checkSolved(){
-      if(!state.order.every((v,i)=>v===i)) return;
-      state.done = true;
-      stopTimer();
-      fireConfetti();
-      const time = fmtTime(state.secs);
-      winText.textContent = `Время: ${time} · Ходы: ${state.moves}`;
-      winModal.classList.add('visible');
-    }
-
-    function fireConfetti(){
-      const rect = boardContainer.getBoundingClientRect();
-      const ctx = confettiC.getContext('2d');
-      confettiC.width = rect.width;
-      confettiC.height = rect.height;
-      
-      const N = 150;
-      const parts = Array.from({length:N}).map(()=> ({
-        x: Math.random()*confettiC.width,
-        y: -Math.random()*confettiC.height*0.2,
-        r: 3 + Math.random()*6,
-        c: `hsl(${Math.floor(180+Math.random()*160)}, 100%, 65%)`,
-        vX: (-1+Math.random()*2)*0.4*devicePixelRatio,
-        vY: (1.2+Math.random()*1.8)*devicePixelRatio,
-        rot: Math.random()*Math.PI,
-        vr: (-.1+Math.random()*.2)
-      }));
-      let t=0, maxT=200;
-      (function anim(){
-        ctx.clearRect(0,0,confettiC.width, confettiC.height);
-        parts.forEach(p=>{
-          p.x+=p.vX; p.y+=p.vY; p.rot+=p.vr;
-          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
-          ctx.fillStyle=p.c; ctx.fillRect(-p.r, -p.r, p.r*2, p.r*2);
-          ctx.restore();
-        });
-        if(t++<maxT) requestAnimationFrame(anim);
-        else ctx.clearRect(0,0,confettiC.width, confettiC.height);
-      })();
-    }
-
-    function createCardBlob() {
-       return new Promise((resolve) => {
-          if (!state.imgEl) { resolve(null); return; }
-          const can = document.createElement('canvas');
-          const w = 1600, h = 900; 
-          can.width = w; can.height = h;
-          const ctx = can.getContext('2d');
-          ctx.drawImage(state.imgEl, 0,0, w, h);
-          const { train, from, to } = state.meta;
-          const barH = 160;
-          ctx.fillStyle='rgba(0,0,0,.65)';
-          ctx.fillRect(0, h-barH, w, barH);
-          const pad = 40;
-          ctx.fillStyle='#7df2ff';
-          ctx.font='700 42px Rubik, system-ui, sans-serif';
-          let mainText = (train && from && to) 
-            ? `Рейс ${train} · ${from} → ${to}`
-            : 'Путешествуй с удовольствием!';
-          ctx.fillText(mainText, pad, h-95, w - (pad*2));
-          const now = new Date();
-          const dateStr = now.toLocaleDateString('ru-RU');
-          ctx.font='400 28px Rubik, system-ui, sans-serif';
-          ctx.fillStyle='#e9f1ff';
-          ctx.fillText(`Дата: ${dateStr} · Время: ${fmtTime(state.secs)} · Ходы: ${state.moves}`, pad, h-45);
-          can.toBlob(blob => resolve(blob), 'image/png', 0.95);
-       });
-    }
-
-    async function downloadImage() {
-       const blob = await createCardBlob();
-       if(!blob) return alert('Ошибка создания изображения');
-       const url = URL.createObjectURL(blob);
-       const link = document.createElement('a');
-       link.download = `panorama_${Date.now()}.png`;
-       link.href = url;
-       document.body.appendChild(link);
-       link.click();
-       document.body.removeChild(link);
-       setTimeout(() => URL.revokeObjectURL(url), 100);
-    }
-
-    async function shareImage() {
-       const blob = await createCardBlob();
-       if(!blob) return alert('Ошибка создания изображения');
-       const file = new File([blob], "panorama.png", { type: "image/png" });
-       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          try {
-            await navigator.share({
-              files: [file],
-              title: 'Поездка с Попутчиком',
-              text: `Я собрал пазл за ${fmtTime(state.secs)}!`
-            });
-          } catch (err) {}
-       } else {
-          downloadImage();
-       }
-    }
-
-    loadImagesAndInit();
-  })();
-  </script>
-</body>
-</html>
+      box-shadow: 0 40px 80px rgba(0,0,0,.8); /* Глубокая тень */
+      padding:24px;
+      display:none; 
+      /* ОЧЕНЬ ВАЖНО: высокий z-index чтобы перекрыть всё */
+      z-index: 9999; 
+      backdrop-filter: blur(20px

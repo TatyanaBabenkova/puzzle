@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
-  <title>Пазл «Панорама» — Попутчик</title>
-  <meta name="description" content="Красивая браузерная игра-пазл" />
+  <title>Пазл</title>
+  <meta name="description" content="Соберите панораму из фрагментов. Готовую картинку можно сохранить как открытку." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -75,7 +75,7 @@
       box-shadow: 0 0 32px rgba(140,255,220,.25) inset;
       flex-shrink: 0;
     }
-    header h1{font-size:18px; margin:0; letter-spacing:.3px}
+    header h1{font-size:18px; margin:0; letter-spacing:.3px; text-transform: uppercase; font-weight: 600;}
     header .sub{color:var(--muted); font-size:12px}
 
     /* ПАНЕЛЬ */
@@ -127,22 +127,16 @@
       color:white; padding:10px; border-radius:10px;
       cursor:pointer; text-align:center; box-shadow:var(--shadow);
       font-weight:600; font-size:13px;
-      transition: transform 0.1s, opacity 0.2s, background-color 0.2s;
+      transition: transform 0.1s, opacity 0.2s;
     }
-    /* Эффект нажатия */
-    .btn:active {
-      transform: scale(0.95);
-      opacity: 0.8;
-    }
+    .btn:active { transform: scale(0.95); opacity: 0.8; }
     
     .btn.primary{
       background:linear-gradient(180deg, rgba(140,255,220,.4), rgba(140,255,220,.08));
       border-color: rgba(161,255,207,.45); color:#04161a;
     }
 
-    #shuffleBtn {
-       animation: pulseBtn 2s infinite;
-    }
+    #shuffleBtn { animation: pulseBtn 2s infinite; }
     @keyframes pulseBtn {
        0% { box-shadow: 0 0 0 0 rgba(108, 224, 255, 0.4); }
        70% { box-shadow: 0 0 0 6px rgba(108, 224, 255, 0); }
@@ -197,11 +191,7 @@
       transition: transform .08s ease, box-shadow .15s ease;
       background-color:#111828;
     }
-    /* Блокировка до нажатия Старт */
-    .board.locked .tile {
-       cursor: default; 
-       filter: brightness(0.9);
-    }
+    .board.locked .tile { cursor: default; filter: brightness(0.9); }
     .board.locked .tile:active { transform: none; }
 
     .tile:active{transform: scale(.96)}
@@ -250,7 +240,6 @@
       box-shadow: 0 40px 80px rgba(0,0,0,.8);
       padding:24px;
       display:none; 
-      /* Высокий Z-INDEX чтобы перекрывать всё */
       z-index: 99999; 
       backdrop-filter: blur(20px); text-align: center;
       opacity: 0; transition: all .3s ease;
@@ -265,8 +254,6 @@
     .credit{font-size:11px; color:var(--muted); margin-top: 4px;}
 
     /* --- АДАПТИВ --- */
-    
-    /* Портрет (обычный телефон) */
     @media (max-width: 980px) and (orientation: portrait){
       .wrap {
         display: flex; flex-direction: column;
@@ -284,17 +271,13 @@
       .previewBox { width: 120px; bottom: 5px; right: 5px; }
     }
 
-    /* Ландшафт (Телефон "как в кино") - СКРЫВАЕМ ВСЁ ЛИШНЕЕ */
     @media (max-width: 920px) and (orientation: landscape) {
       .wrap {
         grid-template-columns: 1fr; 
         grid-template-rows: 1fr;
         padding: 0; gap: 0;
       }
-      /* Скрываем шапку */
       header { display: none; }
-      
-      /* Скрываем настройки, оставляем только паузу */
       #leftPanel { 
          position: absolute; top: 10px; left: 10px; 
          width: auto; height: auto;
@@ -311,7 +294,6 @@
         font-size: 11px; padding: 6px 10px;
         background: rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.2);
       }
-      
       .board-wrap { 
         width: 100%; height: 100%; 
         background: transparent; box-shadow: none; padding: 10px;
@@ -327,8 +309,8 @@
     <header>
       <div class="logo" aria-hidden="true"></div>
       <div>
-        <h1>Пазл «Панорама»</h1>
-        <div class="sub">Собери панораму.</div>
+        <h1>Пазл</h1>
+        <div class="sub">Соберите панораму из фрагментов.</div>
       </div>
     </header>
 
@@ -366,14 +348,13 @@
       <div class="section hide-on-mobile">
         <h2>Совет</h2>
         <div class="mut">
-          Нажми «Старт» для начала игры. Передвигай фрагменты кликом.
+          Нажми «Старт» для начала игры.
         </div>
       </div>
     </aside>
 
     <main class="panel board-wrap" id="boardContainer">
       <div class="board locked" id="board"></div>
-      
       <canvas class="confetti" id="confetti"></canvas>
       <div class="overlayPause">Пауза</div>
       <div class="previewBox" id="previewBox"></div>
@@ -384,7 +365,7 @@
       <div class="sub" id="winText"></div>
       <div class="win-actions">
         <div class="btn primary" id="againBtn">Новая игра</div>
-        <div class="btn primary" id="smartActionBtn">Скачать открытку</div>
+        <div class="btn" id="smartActionBtn">Скачать открытку</div>
       </div>
     </div>
   </div>
@@ -394,9 +375,8 @@
     let IMAGES = [];
     const IMAGE_ASPECT = 16 / 9;
 
-    // --- НАСТРОЙКА КАРТИНОК ---
-    // Пути возвращены к assets/img/
     function loadImagesAndInit() {
+      // КАРТИНКИ
       IMAGES = [
         { id: '1', title: 'Панорама 1', url: 'assets/img/1.jpg' },
         { id: '2', title: 'Панорама 2', url: 'assets/img/2.jpg' },
@@ -432,7 +412,7 @@
       image: null, imgEl: null,
       order: [], tiles: [],
       started:false, paused:false, done:false,
-      shuffled: false, // Защита от читов
+      shuffled: false,
       moves:0, secs:0, timer:null,
       selectedIndex: null,
       meta: { train: null, from: null, to: null }
@@ -447,7 +427,6 @@
       if(urlParams.has('from'))  state.meta.from  = urlParams.get('from');
       if(urlParams.has('to'))    state.meta.to    = urlParams.get('to');
 
-      // Логика кнопки Поделиться/Скачать
       const canShare = navigator.canShare && navigator.canShare({ files: [new File([], 't.png', {type:'image/png'})] });
       const isMobile = /Mobi|Android/i.test(navigator.userAgent);
       
@@ -516,10 +495,7 @@
         }
         newGame();
       };
-      // Теперь выводим Alert при ошибке загрузки
-      img.onerror = () => { 
-          alert('Ошибка! Не могу найти картинку:\n' + imageObj.url + '\n\nПроверь папку assets/img/');
-      };
+      img.onerror = () => { console.error('Не найдена картинка:', imageObj.url); };
       img.src = imageObj.url;
     }
 
@@ -528,7 +504,7 @@
       state.secs=0; state.moves=0;
       state.done=false; state.started=false;
       state.selectedIndex=null; state.paused=false;
-      state.shuffled = false; // Сброс флага перемешивания
+      state.shuffled = false; 
       
       timeEl.textContent = '00:00';
       movesEl.textContent = '0';
@@ -537,7 +513,6 @@
       
       buildBoard();
       
-      // Если не перемешано - блокируем
       if(!shuffleNow) {
          boardEl.classList.add('locked');
       }
@@ -633,7 +608,6 @@
     }
 
     function onTileClick(tileId){
-      // БЛОКИРОВКА ЧИТЕРСТВА: если не перемешано - не двигаем
       if(!state.shuffled) return;
       
       if(state.paused || state.done) return;
@@ -735,7 +709,6 @@
         return;
       }
 
-      // ЛОГОТИП
       const logo = new Image();
       logo.src = 'assets/img/rzd-logo.png'; 
       
@@ -768,7 +741,11 @@
           const dateStr = now.toLocaleDateString('ru-RU');
           ctx.font='400 26px Rubik, system-ui';
           ctx.fillStyle='#d2f9ff';
-          ctx.fillText(`Дата: ${dateStr} · Время: ${fmtTime(state.secs)} · Ходы: ${state.moves}`, pad, h-40);
+          
+          // --- ЗДЕСЬ НОВЫЙ ТЕКСТ НА ОТКРЫТКЕ ---
+          // Вместо "Время и Ходы" пишем красивую фразу
+          const bottomText = `Дата: ${dateStr} · Собрано в пути`;
+          ctx.fillText(bottomText, pad, h-40);
 
           if (logo.complete && logo.naturalHeight !== 0) {
             const logoWidth = 200; 

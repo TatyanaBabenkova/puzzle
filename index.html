@@ -374,20 +374,41 @@
   ;(() => {
     let IMAGES = [];
     const IMAGE_ASPECT = 16 / 9;
+  
+function loadImagesAndInit() {
+      // Загружаем список из файла images.json, который лежит в assets/img/
+      fetch('assets/img/images.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Не удалось найти файл assets/img/images.json');
+          }
+          return response.json();
+        })
+        .then(data => {
+          // Превращаем данные из JSON в формат, понятный игре
+          IMAGES = data.map(item => ({
+            id: item.file, // Используем имя файла как ID
+            title: item.title,
+            // ВАЖНО: Добавляем путь к папке assets/img/, так как в JSON только имена
+            url: 'assets/img/' + item.file, 
+            credit: item.credit || ''
+          }));
 
-    function loadImagesAndInit() {
-      // КАРТИНКИ
-      IMAGES = [
-        { id: '1', title: 'Панорама 1', url: 'assets/img/1.jpg' },
-        { id: '2', title: 'Панорама 2', url: 'assets/img/2.jpg' },
-        { id: '3', title: 'Панорама 3', url: 'assets/img/3.jpg' },
-        { id: '4', title: 'Панорама 4', url: 'assets/img/4.jpg' },
-        { id: '5', title: 'Панорама 5', url: 'assets/img/5.jpg' },
-        { id: '9', title: 'Машина',     url: 'assets/img/9.jpg' },
-        { id: '10', title: 'Лошадь',    url: 'assets/img/10.jpg' }
-      ];
-      init();
+          // Если картинок нет в файле — ошибка
+          if (!IMAGES.length) {
+            alert('Файл images.json пуст!');
+            return;
+          }
+
+          // Всё отлично, запускаем игру
+          init();
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Ошибка загрузки списка картинок:\n' + err.message + '\n\nУбедитесь, что файл images.json лежит в папке assets/img/');
+        });
     }
+    
 
     const galleryEl = document.getElementById('gallery');
     const creditEl  = document.getElementById('credit');
@@ -761,17 +782,22 @@
             const fileName = `panorama_${Date.now()}.png`;
             const file = new File([blob], fileName, { type: "image/png" });
 
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            // 1. Проверяем, мобильное ли это устройство
+            const isMobile = /Android|iPhone|iPad|iPod|Mobi/i.test(navigator.userAgent);
+
+            // 2. Если это МОБИЛЬНЫЙ и он умеет делиться -> вызываем меню "Поделиться"
+            if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
               try {
                 await navigator.share({
                   files: [file],
                   title: 'Моя поездка',
                   text: 'Виртуальная открытка на память о дороге.' 
                 });
-                return;
+                return; // Если поделились, выходим (скачивать не надо)
               } catch (err) { console.log(err); }
             }
 
+            // 3. Во всех остальных случаях (Компьютер или если отменили шаринг) -> Скачиваем файл
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.download = fileName;

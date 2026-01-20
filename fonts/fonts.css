@@ -1,0 +1,23 @@
+/* Вес 300 - Тонкий */
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 300;
+  src: url('rubik-v31-cyrillic-300.woff2') format('woff2');
+}
+
+/* Вес 400 - Обычный (regular) */
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 400;
+  src: url('rubik-v31-cyrillic-regular.woff2') format('woff2');
+}
+
+/* Вес 600 - Полужирный */
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 600;
+  src: url('rubik-v31-cyrillic-600.woff2') format('woff2');
+}

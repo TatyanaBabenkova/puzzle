@@ -376,11 +376,11 @@
     const IMAGE_ASPECT = 16 / 9;
   
 function loadImagesAndInit() {
-      // Загружаем список из файла images.json, который лежит в assets/img/
-      fetch('assets/img/images.json')
+      // Загружаем список из файла images.json, который лежит в img/
+      fetch('img/images.json')
         .then(response => {
           if (!response.ok) {
-            throw new Error('Не удалось найти файл assets/img/images.json');
+            throw new Error('Не удалось найти файл img/images.json');
           }
           return response.json();
         })
@@ -389,8 +389,8 @@ function loadImagesAndInit() {
           IMAGES = data.map(item => ({
             id: item.file, // Используем имя файла как ID
             title: item.title,
-            // ВАЖНО: Добавляем путь к папке assets/img/, так как в JSON только имена
-            url: 'assets/img/' + item.file, 
+            // ВАЖНО: Добавляем путь к папке img/, так как в JSON только имена
+            url: 'img/' + item.file, 
             credit: item.credit || ''
           }));
 
@@ -405,7 +405,7 @@ function loadImagesAndInit() {
         })
         .catch(err => {
           console.error(err);
-          alert('Ошибка загрузки списка картинок:\n' + err.message + '\n\nУбедитесь, что файл images.json лежит в папке assets/img/');
+          alert('Ошибка загрузки списка картинок:\n' + err.message + '\n\nУбедитесь, что файл images.json лежит в папке img/');
         });
     }
     
@@ -731,7 +731,7 @@ function loadImagesAndInit() {
       }
 
       const logo = new Image();
-      logo.src = 'assets/img/rzd-logo.png'; 
+      logo.src = 'img/rzd-logo.png'; 
       
       logo.onload = drawCanvas;
       logo.onerror = drawCanvas; 

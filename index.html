@@ -20,7 +20,7 @@
       --glass: rgba(255,255,255,.08);
       --shadow: 0 10px 30px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.04);
     }
-    
+   
     *{box-sizing:border-box}
     
     html,body{
@@ -78,7 +78,14 @@
     }
     header h1{font-size:18px; margin:0; letter-spacing:.3px; text-transform: uppercase; font-weight: 600;}
     header .sub{color:var(--muted); font-size:12px}
-
+/* ПРИНУДИТЕЛЬНО уменьшаем картинку в шапке */
+    header img {
+      max-width: 60px !important;  /* Не шире 60 пикселей */
+      height: auto !important;     /* Высота подстроится сама */
+      object-fit: contain;
+      display: block;
+    }
+    
     /* ПАНЕЛЬ */
     .panel{
       display:flex; flex-direction:column; gap:14px;

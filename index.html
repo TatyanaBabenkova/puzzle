@@ -540,9 +540,12 @@ function loadImagesAndInit() {
   //  const previewBox = document.getElementById('previewBox');
     const smartActionBtn = document.getElementById('smartActionBtn');
 
-const previewBtn = document.getElementById('previewBtn');
+  
 const bigPreview = document.getElementById('bigPreview');
 
+// ДОБАВЛЯЕМ ДВЕ НОВЫЕ КНОПКИ:
+const previewBtnPortrait = document.getElementById('previewBtnPortrait');
+const previewBtnLandscape = document.getElementById('previewBtnLandscape');
     
     let state = {
       rows: 4, cols: 4,
@@ -938,7 +941,33 @@ const bigPreview = document.getElementById('bigPreview');
         }
       }
     }
+// --- ЛОГИКА ДЛЯ КНОПОК "ОБРАЗЕЦ" ---
+  function setupPreviewBtn(btn) {
+     if(!btn) return; // Если кнопки нет, выходим
+     
+     const show = (e) => { 
+       e.preventDefault(); 
+       if(bigPreview) bigPreview.classList.add('visible'); 
+     };
+     
+     const hide = (e) => { 
+       if(e) e.preventDefault(); 
+       if(bigPreview) bigPreview.classList.remove('visible'); 
+     };
+     
+     // Мышь (компьютер)
+     btn.addEventListener('mousedown', show);
+     btn.addEventListener('mouseup', hide);
+     btn.addEventListener('mouseleave', hide);
+     
+     // Палец (телефон)
+     btn.addEventListener('touchstart', show, {passive: false});
+     btn.addEventListener('touchend', hide);
+  }
 
+  // Запускаем настройку для обеих кнопок
+  setupPreviewBtn(previewBtnPortrait);
+  setupPreviewBtn(previewBtnLandscape);
     loadImagesAndInit();
   })();
   </script>

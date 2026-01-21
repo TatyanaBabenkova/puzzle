@@ -265,40 +265,33 @@
     /* --- АДАПТИВ --- */
     /* МОБИЛЬНАЯ ВЕРСИЯ */
     @media (max-width: 980px) and (orientation: portrait){
-      .wrap {
-        display: flex; flex-direction: column;
-        padding: 12px; gap: 12px;
-        
-        /* ГЛАВНОЕ ИЗМЕНЕНИЕ: */
-        height: 100vh;           /* Запасной вариант для старых телефонов */
-        height: 100dvh;          /* Умная высота: учитывает панели браузера */
-        
-        /* Небольшой отступ снизу */
-        padding-bottom: env(safe-area-inset-bottom, 10px);
-        
-        overflow: hidden;        /* Запрещаем прокрутку */
+      /* ... ваши старые стили для .wrap ... */
+
+      /* 1. Прячем большую нижнюю кнопку, она тут не влезает */
+      .landscape-only { display: none !important; }
+
+      /* 2. Показываем маленькую кнопку */
+      #previewBtnPortrait { 
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px; padding: 0;
       }
-      
-      header { padding: 8px 12px; flex-shrink: 0; }
-      
+
+      /* 3. Настраиваем сетку: 3 кнопки в ряд (Старт, Пауза, Глаз) */
+      .controls {
+        display: grid;
+        /* Две широкие колонки и одна узкая (50px) */
+        grid-template-columns: 1fr 1fr 50px; 
+        gap: 8px;
+      }
+
+      /* 4. Чуть увеличиваем место для панели, чтобы точно влезло */
       .panel {
         padding: 12px; gap: 10px; flex-shrink: 0; 
-        /* Ограничиваем высоту панели управления, чтобы она не съела всё место */
-        max-height: 35vh; 
+        max-height: 45vh; /* Было 35vh, увеличили до 45 */
         overflow-y: auto;
       }
       
-      .board-wrap {
-        /* Игровое поле занимает всё оставшееся место, но не больше */
-        flex-grow: 1; 
-        width: 100%; 
-        min-height: 0; 
-        background: transparent; 
-        box-shadow: none;
-      }
-      
-      .hide-on-mobile { display: none !important; }
-      .previewBox { width: 120px; bottom: 5px; right: 5px; }
+      /* ... остальной код ... */
     }
 
     /* ИСПРАВЛЕННЫЙ ЛАНДШАФТНЫЙ РЕЖИМ (АЛЬБОМНЫЙ) */
@@ -356,14 +349,14 @@
         pointer-events: auto; 
         width: auto; margin: 0; padding: 0;
       }
-      #previewBtn {
-        background: rgba(0,0,0,0.6); 
-        border: 1px solid rgba(255,255,255,0.3);
+     
+#previewBtnLandscape {
+        background: rgba(0,0,0,0.6);
+       border: 1px solid rgba(255,255,255,0.3);
         backdrop-filter: blur(4px);
         font-size: 13px; padding: 12px 16px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.3);
       }
-
       /* Игровое поле */
       .board-wrap { 
         width: 100%; height: 100%; 
@@ -426,12 +419,12 @@
       </div>
 
       <div class="section">
-      
         
         <div class="compact-row">
           <div class="controls">
             <div class="btn primary" id="shuffleBtn">Старт</div>
             <div class="btn primary" id="pauseBtn">Пауза</div>
+            <div class="btn" id="previewBtnPortrait">👁️</div>
           </div>
           <div class="stats">
             <div class="stat">Время<b id="time">00:00</b></div>
@@ -446,9 +439,9 @@
           Нажми «Старт» для начала игры.
         </div>
       </div>
-        <div class="toggles">
-          <div class="btn" id="previewBtn" style="flex:1; text-align:center;">👁️ Образец</div>
-        </div>
+        <div class="toggles landscape-only">
+        <div class="btn" id="previewBtnLandscape" style="flex:1; text-align:center;">👁️ Образец</div>
+      </div>
 
     </aside>
 
@@ -584,35 +577,28 @@ const bigPreview = document.getElementById('bigPreview');
       shuffleBtn.addEventListener('click', ()=> newGame(true));
       pauseBtn.addEventListener('click', togglePause);
 
-if (previewBtn) {
-        // ЛОГИКА КНОПКИ "ОБРАЗЕЦ" (НАЖАЛ-ДЕРЖИ)
-        const showPreview = (e) => {
-          e.preventDefault(); 
-          if(bigPreview) bigPreview.classList.add('visible');
-        };
-        const hidePreview = (e) => {
-          if(e) e.preventDefault();
-          if(bigPreview) bigPreview.classList.remove('visible');
-        };
+// --- НОВЫЙ КОД ДЛЯ ОБЕИХ КНОПОК ---
+    const previewBtnPortrait = document.getElementById('previewBtnPortrait');
+    const previewBtnLandscape = document.getElementById('previewBtnLandscape');
 
-        // Для мышки
-        previewBtn.addEventListener('mousedown', showPreview);
-        previewBtn.addEventListener('mouseup', hidePreview);
-        previewBtn.addEventListener('mouseleave', hidePreview);
-
-        // Для тач-экранов (телефонов)
-        previewBtn.addEventListener('touchstart', showPreview, {passive: false});
-        previewBtn.addEventListener('touchend', hidePreview);
-      }
-
-       againBtn.addEventListener('click', ()=>{
-       winModal.classList.remove('visible');
-       newGame(true);
-      });
-
-      window.addEventListener('resize', queueLayout);
-      loadImage(state.image);
+    // Функция, которая "вешает" логику на любую кнопку
+    function setupPreviewBtn(btn) {
+       if(!btn) return;
+       const show = (e) => { e.preventDefault(); if(bigPreview) bigPreview.classList.add('visible'); };
+       const hide = (e) => { if(e) e.preventDefault(); if(bigPreview) bigPreview.classList.remove('visible'); };
+       
+       // Мышь
+       btn.addEventListener('mousedown', show);
+       btn.addEventListener('mouseup', hide);
+       btn.addEventListener('mouseleave', hide);
+       // Палец
+       btn.addEventListener('touchstart', show, {passive: false});
+       btn.addEventListener('touchend', hide);
     }
+
+    // Применяем к обеим кнопкам
+    setupPreviewBtn(previewBtnPortrait);
+    setupPreviewBtn(previewBtnLandscape);
 
     function selectImage(id){
       const img = IMAGES.find(x=>x.id===id);

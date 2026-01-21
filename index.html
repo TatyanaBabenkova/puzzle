@@ -559,30 +559,30 @@ const bigPreview = document.getElementById('bigPreview');
       shuffleBtn.addEventListener('click', ()=> newGame(true));
       pauseBtn.addEventListener('click', togglePause);
 
-      if (previewToggle) {
-       // ЛОГИКА КНОПКИ "ОБРАЗЕЦ" (НАЖАЛ-ДЕРЖИ)
-  const showPreview = (e) => {
-    e.preventDefault(); // Чтобы на телефоне не выделялся текст
-    bigPreview.classList.add('visible');
-  };
-  const hidePreview = (e) => {
-    if(e) e.preventDefault();
-    bigPreview.classList.remove('visible');
-  };
+if (previewBtn) {
+        // ЛОГИКА КНОПКИ "ОБРАЗЕЦ" (НАЖАЛ-ДЕРЖИ)
+        const showPreview = (e) => {
+          e.preventDefault(); 
+          if(bigPreview) bigPreview.classList.add('visible');
+        };
+        const hidePreview = (e) => {
+          if(e) e.preventDefault();
+          if(bigPreview) bigPreview.classList.remove('visible');
+        };
 
-  // Для мышки
-  previewBtn.addEventListener('mousedown', showPreview);
-  previewBtn.addEventListener('mouseup', hidePreview);
-  previewBtn.addEventListener('mouseleave', hidePreview);
+        // Для мышки
+        previewBtn.addEventListener('mousedown', showPreview);
+        previewBtn.addEventListener('mouseup', hidePreview);
+        previewBtn.addEventListener('mouseleave', hidePreview);
 
-  // Для тач-экранов (телефонов)
-  previewBtn.addEventListener('touchstart', showPreview, {passive: false});
-  previewBtn.addEventListener('touchend', hidePreview);;
+        // Для тач-экранов (телефонов)
+        previewBtn.addEventListener('touchstart', showPreview, {passive: false});
+        previewBtn.addEventListener('touchend', hidePreview);
       }
 
-      againBtn.addEventListener('click', ()=>{
-        winModal.classList.remove('visible');
-        newGame(true);
+       againBtn.addEventListener('click', ()=>{
+       winModal.classList.remove('visible');
+       newGame(true);
       });
 
       window.addEventListener('resize', queueLayout);
@@ -604,7 +604,8 @@ const bigPreview = document.getElementById('bigPreview');
       const img = new Image();
       img.onload = ()=>{
         state.imgEl = img;
-        if (previewBox) {
+        // Если элемент "большой образец" существует, обновляем в нем картинку
+        if (bigPreview) {
            bigPreview.style.backgroundImage = `url("${imageObj.url}")`;
         }
         newGame();

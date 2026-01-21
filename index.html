@@ -260,19 +260,40 @@
     .credit{font-size:11px; color:var(--muted); margin-top: 4px;}
 
     /* --- АДАПТИВ --- */
+    /* МОБИЛЬНАЯ ВЕРСИЯ */
     @media (max-width: 980px) and (orientation: portrait){
       .wrap {
         display: flex; flex-direction: column;
         padding: 12px; gap: 12px;
-        height: 100vh; overflow: hidden;
+        
+        /* ГЛАВНОЕ ИЗМЕНЕНИЕ: */
+        height: 100vh;           /* Запасной вариант для старых телефонов */
+        height: 100dvh;          /* Умная высота: учитывает панели браузера */
+        
+        /* Небольшой отступ снизу */
+        padding-bottom: env(safe-area-inset-bottom, 10px);
+        
+        overflow: hidden;        /* Запрещаем прокрутку */
       }
+      
       header { padding: 8px 12px; flex-shrink: 0; }
+      
       .panel {
-        padding: 12px; gap: 10px; flex-shrink: 0; max-height: 45vh;
+        padding: 12px; gap: 10px; flex-shrink: 0; 
+        /* Ограничиваем высоту панели управления, чтобы она не съела всё место */
+        max-height: 35vh; 
+        overflow-y: auto;
       }
+      
       .board-wrap {
-        flex-grow: 1; width: 100%; min-height: 0; background: transparent; box-shadow: none;
+        /* Игровое поле занимает всё оставшееся место, но не больше */
+        flex-grow: 1; 
+        width: 100%; 
+        min-height: 0; 
+        background: transparent; 
+        box-shadow: none;
       }
+      
       .hide-on-mobile { display: none !important; }
       .previewBox { width: 120px; bottom: 5px; right: 5px; }
     }

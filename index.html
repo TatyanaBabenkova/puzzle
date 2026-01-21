@@ -301,8 +301,6 @@
       .previewBox { width: 120px; bottom: 5px; right: 5px; }
     }
 
-    
-   /* ИСПРАВЛЕННЫЙ ЛАНДШАФТНЫЙ РЕЖИМ (АЛЬБОМНЫЙ) */
     /* ИСПРАВЛЕННЫЙ ЛАНДШАФТНЫЙ РЕЖИМ (АЛЬБОМНЫЙ) */
     @media (max-width: 920px) and (orientation: landscape) {
       .wrap {
@@ -319,16 +317,21 @@
 
       header { display: none; }
 
-      /* Делаем панель прозрачной, чтобы она не перекрывала игру, но кнопки работали */
+      /* Делаем панель прозрачной на весь экран */
       #leftPanel { 
          position: absolute; inset: 0; 
          width: 100%; height: 100%;
-         background: transparent; box-shadow: none; 
+         background: transparent; 
+         box-shadow: none; 
+         
+         /* ВОТ ЭТА ВАЖНАЯ СТРОЧКА, КОТОРОЙ НЕ ХВАТАЛО: */
+         backdrop-filter: none; 
+         
          padding: 0; margin: 0; pointer-events: none; z-index: 100;
          display: block; 
       }
 
-      /* Скрываем всё лишнее, КРОМЕ кнопки .toggles */
+      /* Скрываем всё лишнее */
       #leftPanel .section, #gallery, .credit, .range, .stats, #shuffleBtn { 
          display: none !important; 
       }
@@ -345,7 +348,7 @@
         backdrop-filter: blur(4px);
       }
 
-      /* Кнопка ОБРАЗЕЦ (Справа посередине) - ВОТ ЭТОГО НЕ ХВАТАЕТ */
+      /* Кнопка ОБРАЗЕЦ (Справа посередине) */
       .toggles {
         display: block !important; 
         position: absolute; 
@@ -370,6 +373,9 @@
       
       .previewBox { width: 100px; bottom: 5px; right: 5px; }
     }
+    
+  
+   
 /* СТИЛЬ ДЛЯ БОЛЬШОГО ОБРАЗЦА */
     #bigPreview {
       position: absolute;

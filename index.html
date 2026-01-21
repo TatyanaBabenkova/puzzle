@@ -353,6 +353,27 @@
       
       .previewBox { width: 100px; bottom: 5px; right: 5px; }
     }
+/* СТИЛЬ ДЛЯ БОЛЬШОГО ОБРАЗЦА */
+    #bigPreview {
+      position: absolute;
+      inset: 10px;       /* Отступы от краев поля */
+      z-index: 50;       /* Поверх всего */
+      background-position: center;
+      background-size: contain; /* Картинка целиком влезет */
+      background-repeat: no-repeat;
+      background-color: rgba(0,0,0, 0.7); /* Затемнение фона */
+      backdrop-filter: blur(5px);         /* Размытие фона */
+      border-radius: 12px;
+      
+      opacity: 0;              /* Скрыт по умолчанию */
+      pointer-events: none;    /* Чтобы клики проходили сквозь него, когда скрыт */
+      transition: opacity 0.2s ease;
+    }
+    /* Класс, который делает его видимым */
+    #bigPreview.visible {
+      opacity: 1;
+    }
+    
   </style>
 </head>
 <body>
@@ -383,7 +404,7 @@
 
       <div class="section">
         <div class="toggles">
-          <label class="toggle"><input type="checkbox" id="previewToggle" /> Образец</label>
+          <div class="btn" id="previewBtn" style="flex:1; text-align:center;">👁️ Образец</div>
         </div>
         
         <div class="compact-row">
@@ -407,6 +428,7 @@
     </aside>
 
     <main class="panel board-wrap" id="boardContainer">
+      <div id="bigPreview"></div>
       <div class="board locked" id="board"></div>
       <canvas class="confetti" id="confetti"></canvas>
       <div class="overlayPause">Пауза</div>
@@ -477,10 +499,14 @@ function loadImagesAndInit() {
     const winModal  = document.getElementById('winModal');
     const winText   = document.getElementById('winText');
     const againBtn  = document.getElementById('againBtn');
-    const previewToggle = document.getElementById('previewToggle');
-    const previewBox = document.getElementById('previewBox');
+   // const previewToggle = document.getElementById('previewToggle');
+  //  const previewBox = document.getElementById('previewBox');
     const smartActionBtn = document.getElementById('smartActionBtn');
 
+const previewBtn = document.getElementById('previewBtn');
+const bigPreview = document.getElementById('bigPreview');
+
+    
     let state = {
       rows: 4, cols: 4,
       image: null, imgEl: null,
@@ -534,10 +560,24 @@ function loadImagesAndInit() {
       pauseBtn.addEventListener('click', togglePause);
 
       if (previewToggle) {
-        previewToggle.addEventListener('change', ()=>{
-          if (!previewBox) return;
-          previewBox.classList.toggle('visible', previewToggle.checked);
-        });
+       // ЛОГИКА КНОПКИ "ОБРАЗЕЦ" (НАЖАЛ-ДЕРЖИ)
+  const showPreview = (e) => {
+    e.preventDefault(); // Чтобы на телефоне не выделялся текст
+    bigPreview.classList.add('visible');
+  };
+  const hidePreview = (e) => {
+    if(e) e.preventDefault();
+    bigPreview.classList.remove('visible');
+  };
+
+  // Для мышки
+  previewBtn.addEventListener('mousedown', showPreview);
+  previewBtn.addEventListener('mouseup', hidePreview);
+  previewBtn.addEventListener('mouseleave', hidePreview);
+
+  // Для тач-экранов (телефонов)
+  previewBtn.addEventListener('touchstart', showPreview, {passive: false});
+  previewBtn.addEventListener('touchend', hidePreview);;
       }
 
       againBtn.addEventListener('click', ()=>{
@@ -565,7 +605,7 @@ function loadImagesAndInit() {
       img.onload = ()=>{
         state.imgEl = img;
         if (previewBox) {
-          previewBox.style.backgroundImage = `url("${imageObj.url}")`;
+           bigPreview.style.backgroundImage = `url("${imageObj.url}")`;
         }
         newGame();
       };

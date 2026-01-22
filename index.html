@@ -343,15 +343,29 @@
 
       /* --- Кнопка ПАУЗА (слева сверху) --- */
       #pauseBtn { 
-        pointer-events: auto; /* РАЗРЕШАЕМ КЛИК */
-        opacity: 0.8; 
-        position: absolute; top: 15px; left: 15px;
-        font-size: 13px; padding: 8px 16px; width: auto;
-        background: rgba(0,0,0,0.6); 
-        border: 1px solid rgba(255,255,255,0.3);
+        /* --- Кнопка ПАУЗА (Слева сверху) - ЯРКАЯ ВЕРСИЯ --- */
+      #pauseBtn { 
+        pointer-events: auto;            /* Разрешаем клик */
+        display: block !important;       /* Убеждаемся, что она показана */
+        
+        position: absolute; 
+        top: 20px; left: 20px;           /* Чуть отодвинем от края, чтобы не прилипала */
+        
+        /* Стили для видимости */
+        opacity: 1 !important;           /* Полная непрозрачность */
+        background: rgba(0, 0, 0, 0.8) !important; /* Темный плотный фон */
+        color: #ffffff !important;       /* Белый яркий текст */
+        border: 2px solid rgba(255,255,255,0.4) !important; /* Заметная рамка */
+        
+        font-size: 14px; 
+        font-weight: bold;
+        padding: 8px 18px; 
+        width: auto;
+        border-radius: 10px;
         backdrop-filter: blur(4px);
-        border-radius: 8px;
-        z-index: 101;
+        z-index: 500;                    /* Поверх всех слоев */
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* Тень для объема */
+      }
       }
       /* --- Кнопка ОБРАЗЕЦ (Справа посередине) --- */
       #previewBtn {

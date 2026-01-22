@@ -302,6 +302,7 @@
     }
 
     /* ЛАНДШАФТНЫЙ РЕЖИМ (АЛЬБОМНЫЙ) */
+    /* ИСПРАВЛЕННЫЙ ЛАНДШАФТНЫЙ РЕЖИМ (АЛЬБОМНЫЙ) */
     @media (max-width: 920px) and (orientation: landscape) {
       .wrap {
         display: grid;
@@ -324,7 +325,7 @@
          box-shadow: none; 
          backdrop-filter: none; 
          padding: 0; margin: 0; 
-         pointer-events: none; /* Панель пропускает клики */
+         pointer-events: none; 
          z-index: 100;
          display: block; 
       }
@@ -341,21 +342,18 @@
         width: 100%; height: 100%;
       }
 
-      /* --- Кнопка ПАУЗА (слева сверху) --- */
+      /* --- Кнопка ПАУЗА (Слева сверху) - ИСПРАВЛЕННАЯ --- */
       #pauseBtn { 
-        /* --- Кнопка ПАУЗА (Слева сверху) - ЯРКАЯ ВЕРСИЯ --- */
-      #pauseBtn { 
-        pointer-events: auto;            /* Разрешаем клик */
-        display: block !important;       /* Убеждаемся, что она показана */
+        pointer-events: auto;            
+        display: block !important;       
         
         position: absolute; 
-        top: 20px; left: 20px;           /* Чуть отодвинем от края, чтобы не прилипала */
+        top: 20px; left: 20px;           
         
-        /* Стили для видимости */
-        opacity: 1 !important;           /* Полная непрозрачность */
-        background: rgba(0, 0, 0, 0.8) !important; /* Темный плотный фон */
-        color: #ffffff !important;       /* Белый яркий текст */
-        border: 2px solid rgba(255,255,255,0.4) !important; /* Заметная рамка */
+        opacity: 1 !important;           
+        background: rgba(0, 0, 0, 0.8) !important; 
+        color: #ffffff !important;       
+        border: 2px solid rgba(255,255,255,0.4) !important; 
         
         font-size: 14px; 
         font-weight: bold;
@@ -363,15 +361,14 @@
         width: auto;
         border-radius: 10px;
         backdrop-filter: blur(4px);
-        z-index: 500;                    /* Поверх всех слоев */
-        box-shadow: 0 4px 10px rgba(0,0,0,0.5); /* Тень для объема */
+        z-index: 500;                    
+        box-shadow: 0 4px 10px rgba(0,0,0,0.5); 
       }
-      }
+
       /* --- Кнопка ОБРАЗЕЦ (Справа посередине) --- */
       #previewBtn {
-        /* ВАЖНО: Разрешаем клик и выносим поверх всего */
         pointer-events: auto !important; 
-        display: flex !important; /* Flexbox идеально центрирует иконку */
+        display: flex !important; 
         justify-content: center;
         align-items: center;
         
@@ -381,7 +378,6 @@
         transform: translateY(-50%);
         z-index: 101;
         
-        /* Стили круглой кнопки */
         width: 56px; height: 56px;
         border-radius: 50%; 
         padding: 0 !important;
@@ -404,11 +400,12 @@
       
       .previewBox { width: 140px; bottom: 10px; right: 10px; }
     }
-      /* СТИЛЬ ДЛЯ БОЛЬШОГО ОБРАЗЦА */
+  
+    /* СТИЛЬ ДЛЯ БОЛЬШОГО ОБРАЗЦА */
     #bigPreview {
       position: absolute;
       inset: 10px;       
-      z-index: 500;            /* Самый верхний слой */
+      z-index: 500;       
       background-position: center;
       background-size: contain; 
       background-repeat: no-repeat;
@@ -420,10 +417,15 @@
       pointer-events: none;    
       transition: opacity 0.2s ease;
     }
-    
     /* Класс, который делает его видимым */
     #bigPreview.visible {
       opacity: 1;
+    }
+    
+    /* В портретном режиме кнопка Глаз будет обычной кнопкой в ряду */
+    #previewBtn {
+      background: linear-gradient(180deg, rgba(255,255,255,.15), rgba(255,255,255,.05));
+      border: 1px solid rgba(255,255,255,.15);
     }
   </style>
 </head>

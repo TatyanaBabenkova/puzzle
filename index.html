@@ -922,7 +922,19 @@ if (previewBtn) {
 
           can.toBlob(async function(blob) {
             if (!blob) return;
-            const fileName = `panorama_${Date.now()}.png`;
+            // Красивая дата для имени файла ---
+            const now = new Date();
+            // Формируем строку вида: 2026-01-22_14-30-05
+            const dateStr = now.getFullYear() + '-' +
+                            String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                            String(now.getDate()).padStart(2, '0') + '_' +
+                            String(now.getHours()).padStart(2, '0') + '-' +
+                            String(now.getMinutes()).padStart(2, '0') + '-' +
+                            String(now.getSeconds()).padStart(2, '0');
+            
+            // Собираем имя файла
+            const fileName = `Postcard_${dateStr}.png`;
+           
             const file = new File([blob], fileName, { type: "image/png" });
 
             // 1. Проверяем, мобильное ли это устройство

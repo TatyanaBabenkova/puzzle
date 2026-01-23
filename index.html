@@ -908,14 +908,7 @@ if (previewBtn) {
           const bottomText = `Дата: ${dateStr} · Собрано в пути`;
           ctx.fillText(bottomText, pad, h-40);
 
-          if (logo.complete && logo.naturalHeight !== 0) {
-            const logoWidth = 200; 
-            const ratio = logo.height / logo.width;
-            const logoHeight = logoWidth * ratio;
-            const logoX = w - logoWidth - pad;
-            const logoY = h - (barH/2) - (logoHeight/2); 
-            ctx.drawImage(logo, logoX, logoY, logoWidth, logoHeight);
-          }
+         
 
           can.toBlob(async function(blob) {
             if (!blob) return;

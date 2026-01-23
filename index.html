@@ -873,12 +873,7 @@ if (previewBtn) {
         return;
       }
 
-      const logo = new Image();
-      logo.src = 'img/rzd-logo.png'; 
-
-      
-      logo.onload = drawCanvas;
-      logo.onerror = drawCanvas; 
+      drawCanvas();
 
       function drawCanvas() {
         const can = document.createElement('canvas');
